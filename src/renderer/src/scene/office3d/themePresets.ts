@@ -8,8 +8,9 @@
 import { officeThemeFromFurniture, validateOfficeTheme, type OfficeTheme, type OfficeThemeItem } from '@shared/officeTheme';
 import { materializeDefaults } from '../../features/retro-office/core/furnitureDefaults';
 import fairyGlade from './presets/fairy-glade.office-theme.json';
+import { guildHallThemeRaw } from './guildTheme3d';
 
-export const OFFICE_THEME_PRESETS = ['default', 'fairy', 'christmas'] as const;
+export const OFFICE_THEME_PRESETS = ['guild', 'default', 'fairy', 'christmas'] as const;
 export type OfficeThemePresetId = (typeof OFFICE_THEME_PRESETS)[number];
 
 const RED = '#c62828';
@@ -40,7 +41,9 @@ const stockOffice = (): OfficeThemeItem[] => officeThemeFromFurniture(materializ
 /** The preset as a validated theme. Throws only if a bundled preset is broken
  *  (the test suite checks every one). */
 export function buildOfficeThemePreset(id: OfficeThemePresetId): OfficeTheme {
-  const raw: unknown = id === 'fairy'
+  const raw: unknown = id === 'guild'
+    ? guildHallThemeRaw()
+    : id === 'fairy'
     ? fairyGlade
     : {
         spec: 'aiguild/office-theme@1',

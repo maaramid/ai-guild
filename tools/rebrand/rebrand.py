@@ -231,6 +231,21 @@ GUILD = {
          "// Loaded on demand: the avatar editor pulls in Three.js.\nconst AgentAvatarModal = lazy(() => import('@/features/office/avatar/AgentAvatarModal').then((m) => ({ default: m.AgentAvatarModal })));"),
         ('{avatarOpen && <AgentAvatarModal agent={liveAgent} onClose={() => setAvatarOpen(false)} />}',
          '{avatarOpen && <Suspense fallback={null}><AgentAvatarModal agent={liveAgent} onClose={() => setAvatarOpen(false)} /></Suspense>}')],
+    'src/renderer/src/scene/office3d/themePresets.ts': [
+        ("import fairyGlade from './presets/fairy-glade.office-theme.json';",
+         "import fairyGlade from './presets/fairy-glade.office-theme.json';\nimport { guildHallThemeRaw } from './guildTheme3d';"),
+        ("export const OFFICE_THEME_PRESETS = ['default', 'fairy', 'christmas'] as const;",
+         "export const OFFICE_THEME_PRESETS = ['guild', 'default', 'fairy', 'christmas'] as const;"),
+        ("  const raw: unknown = id === 'fairy'\n    ? fairyGlade",
+         "  const raw: unknown = id === 'guild'\n    ? guildHallThemeRaw()\n    : id === 'fairy'\n    ? fairyGlade")],
+    'test/office-theme.test.cjs': [
+        ("assert.deepEqual(Object.keys(byId), ['default', 'fairy', 'christmas']);",
+         "assert.deepEqual(Object.keys(byId), ['guild', 'default', 'fairy', 'christmas']);\n  assert.equal(byId.guild.scene.hideDefaults, true, 'AI Guild hall owns the floor');\n  assert.ok(byId.guild.items.some((i) => i.id === 'desk_boss'), 'the boss keeps a desk');")],
+    'src/renderer/src/scene/office3d/OfficeFloor3D.tsx': [
+        ("import { OfficeThemePanel } from './OfficeThemePanel';",
+         "import { OfficeThemePanel } from './OfficeThemePanel';\nimport { ensureGuildTheme } from './guildTheme3d';"),
+        ("  const [desks, setDesks] = useState<Record<string, string>>(() => readJson(lsDesks(0), {}));",
+         "  // AI Guild: every floor starts as the Guild Hall (once; undo it in the Theme panel).\n  useMemo(() => {\n    if (ensureGuildTheme(levelNamespace(level))) {\n      try { localStorage.removeItem(lsDesks(level)); } catch { /* storage blocked */ }\n    }\n  }, [level]);\n  const [desks, setDesks] = useState<Record<string, string>>(() => readJson(lsDesks(0), {}));")],
     'src/renderer/src/scene/office/portraitArt.ts': [
         ("import { rgbToHex, shade } from '../../lib/avatars/palette';",
          "import { rgbToHex, shade } from '../../lib/avatars/palette';\n\n// AI Guild: the cast is drawn by the anime-style renderer (animeArt.ts); the\n// pixel versions below stay available as paintPixelPortrait / pixelCharacterLook.\nexport { paintAnimePortrait as paintPortrait, animeCharacterLook as characterLook } from './animeArt';"),
@@ -279,6 +294,11 @@ def patch_locales(out):
             fdict.update(feat)
         if isinstance(data.get('office'), dict):
             data['office']['guild'] = guild
+            preset = data['office'].get('theme', {}).get('preset')
+            if isinstance(preset, dict):
+                preset['guild'] = guild['title']
+            else:
+                misses.append(f'locale: {lng}: no office.theme.preset')
         else:
             misses.append(f'locale: {lng}: no "office" section')
         open(p, 'w', encoding='utf-8', newline='\n').write(json.dumps(data, ensure_ascii=False, indent=2) + '\n')

@@ -1530,7 +1530,8 @@
       "preset": {
         "default": "Default",
         "fairy": "Fairy Glade",
-        "christmas": "Christmas Season"
+        "christmas": "Christmas Season",
+        "guild": "Guild Hall"
       },
       "backupNote": "Applying replaces this floor's layout. The current one is backed up and undo import brings it back.",
       "aiTitle": "Ask an AI to design one",

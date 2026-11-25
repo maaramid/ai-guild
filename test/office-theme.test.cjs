@@ -199,7 +199,9 @@ test('every built-in theme in the panel validates; Default and Christmas keep th
   const presets = loadTs('src/renderer/src/scene/office3d/themePresets.ts');
   const byId = {};
   for (const id of presets.OFFICE_THEME_PRESETS) byId[id] = presets.buildOfficeThemePreset(id);
-  assert.deepEqual(Object.keys(byId), ['default', 'fairy', 'christmas']);
+  assert.deepEqual(Object.keys(byId), ['guild', 'default', 'fairy', 'christmas']);
+  assert.equal(byId.guild.scene.hideDefaults, true, 'AI Guild hall owns the floor');
+  assert.ok(byId.guild.items.some((i) => i.id === 'desk_boss'), 'the boss keeps a desk');
   assert.equal(byId.default.scene, undefined, 'default clears any scene look');
   const desks = (t) => t.items.filter((i) => i.type === 'desk_cubicle').map((i) => `${i.x},${i.y}`);
   assert.deepEqual(desks(byId.christmas), desks(byId.default), 'seats survive switching between them');

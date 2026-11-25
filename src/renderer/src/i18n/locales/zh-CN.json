@@ -1530,7 +1530,8 @@
       "preset": {
         "default": "默认",
         "fairy": "仙境林地",
-        "christmas": "圣诞季"
+        "christmas": "圣诞季",
+        "guild": "公会大厅"
       },
       "backupNote": "应用会替换这层的布局。当前布局会备份，“撤销导入”可以恢复。",
       "aiTitle": "让 AI 设计一个",

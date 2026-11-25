@@ -11,6 +11,7 @@ import type { PickChatter } from '@/features/retro-office/systems/chatter';
 import { pickExchange, pickSoloLine, type CafeteriaLines } from '@/scene/office/cafeteriaLines';
 import { useFeatures } from '@/lib/useFeatures';
 import { OfficeThemePanel } from './OfficeThemePanel';
+import { ensureGuildTheme } from './guildTheme3d';
 import { featureOn } from '@shared/features';
 import { useOfficeFeed, type OfficeFeedEvent } from './useOfficeFeed';
 import { useOfficeStandup } from './useOfficeStandup';
@@ -187,6 +188,12 @@ export function OfficeFloor3D() {
   // eslint-disable-next-line react-hooks/exhaustive-deps
   const officeAgents = useMemo(() => onLevel.map(toOfficeAgent), [officeKey]);
 
+  // AI Guild: every floor starts as the Guild Hall (once; undo it in the Theme panel).
+  useMemo(() => {
+    if (ensureGuildTheme(levelNamespace(level))) {
+      try { localStorage.removeItem(lsDesks(level)); } catch { /* storage blocked */ }
+    }
+  }, [level]);
   const [desks, setDesks] = useState<Record<string, string>>(() => readJson(lsDesks(0), {}));
   useEffect(() => setDesks(readJson(lsDesks(level), {})), [level]);
 
