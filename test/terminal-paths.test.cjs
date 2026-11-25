@@ -100,7 +100,7 @@ test('a :line suffix survives matching and still classifies by extension', () =>
 
 test('absolute, home, and Windows paths are all recognised', () => {
   assert.deepEqual(tokensIn('at /Users/x/notes.md'), ['/Users/x/notes.md']);
-  assert.deepEqual(tokensIn('at ~/HarnessAgents/board.md'), ['~/HarnessAgents/board.md']);
+  assert.deepEqual(tokensIn('at ~/AIGuildAgents/board.md'), ['~/AIGuildAgents/board.md']);
   assert.deepEqual(tokensIn('at C:\\Users\\x\\a.ts'), ['C:\\Users\\x\\a.ts']);
 });
 

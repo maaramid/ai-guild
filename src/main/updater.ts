@@ -394,8 +394,8 @@ its first newline.
 
 - **Agent-to-agent messaging works on Windows.** Prompt-carrying spawns now run the CLI's real
   interpreter directly instead of routing through \`cmd.exe\`, so the whole protocol survives.
-- **Setup can finish again.** Accepting the suggested \`~/HarnessAgents\` folder wrote a literal
-  \`~\`, and the wizard then died on \`ENOENT: mkdir '~/HarnessAgents'\`.
+- **Setup can finish again.** Accepting the suggested \`~/AIGuildAgents\` folder wrote a literal
+  \`~\`, and the wizard then died on \`ENOENT: mkdir '~/AIGuildAgents'\`.
 - **Copying from a terminal is clean.** The Edit menu was intercepting ⌘C before the terminal saw it.
 - **Agent terminals are UTF-8.** They ran with no locale at all.`;
 

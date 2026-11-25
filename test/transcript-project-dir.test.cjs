@@ -112,12 +112,12 @@ test('a legacy-only install with dots resolves to its undashed twin', posixLegac
 test('the real failing path resolves to the dir Claude Code actually writes', () => {
   withHome((_home, mkProject) => {
     // The exact cwd whose transcripts the condense step could not find (#123).
-    const cwd = '/Users/vyapakgoyal/Documents/HarnessAgents';
-    mkProject('-Users-vyapakgoyal-Documents-HarnessAgents');
-    mkProject('Users-vyapakgoyal-Documents-HarnessAgents');
+    const cwd = '/Users/vyapakgoyal/Documents/AIGuildAgents';
+    mkProject('-Users-vyapakgoyal-Documents-AIGuildAgents');
+    mkProject('Users-vyapakgoyal-Documents-AIGuildAgents');
     assert.equal(
       path.basename(projectDir(cwd)),
-      '-Users-vyapakgoyal-Documents-HarnessAgents'
+      '-Users-vyapakgoyal-Documents-AIGuildAgents'
     );
   });
 });

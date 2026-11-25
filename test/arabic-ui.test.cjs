@@ -210,7 +210,7 @@ test('no Arabic string is left as its English source', () => {
     'onboarding.providerBlurb.gemini',
     'addAgent.projectPlaceholder',           // /path/to/your/project — a filesystem path
     'contextSection.methodCompact',          // /compact — the literal command
-    'onboarding.home.placeholder',           // /path/to/HarnessAgents — same
+    'onboarding.home.placeholder',           // /path/to/AIGuildAgents — same
     'mcpDefaults.toggleNote',                // "{{id}}: {{state}}" — pure interpolation
     'webhooksSection.summary',               // "{{count}} · {{state}}" — same
     'settings.voice.providerOpenai',         // "OpenAI Realtime": product name

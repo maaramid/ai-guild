@@ -388,7 +388,7 @@ export const DEFAULT_DROP_HTML = `<style>
       <p class="lede">Four separate bugs sat on the very first thing a new user does.</p>
       <ul class="rows">
         <li><i>Wizard</i><div><b>The suggested folder works</b>
-          <p>Accepting ~/HarnessAgents stored a literal tilde and died on ENOENT.
+          <p>Accepting ~/AIGuildAgents stored a literal tilde and died on ENOENT.
           It now resolves to a real path — and the field actually suggests it.</p></div></li>
         <li><i>Wizard</i><div><b>It tells you at step one</b>
           <p>An empty folder used to walk you through all four steps before bouncing

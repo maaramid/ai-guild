@@ -7,9 +7,9 @@
 <title>AI Guild feature manual</title>
 <style>
   :root {
-    --bg: #181C17; --surface: #232922; --surface-2: #2A3128; --border: #2F362D;
-    --cream: #E6ECDD; --light: #F4F7EE; --muted: #9AA38F; --muted-2: #828C78;
-    --lime: #CDF252; --lime-press: #B9DE3C; --gold: #D4AF37; --coral: #E0826F; --key: #E1642D;
+    --bg: #1C1510; --surface: #2a2119; --surface-2: #30261D; --border: #372B21;
+    --cream: #F0E6D6; --light: #F4F7EE; --muted: #A8977F; --muted-2: #8C7B66;
+    --lime: #E8B24C; --lime-press: #B9DE3C; --gold: #D4AF37; --coral: #E0826F; --key: #C9472F;
     --radius: 10px;
     --ease: cubic-bezier(0.22, 1, 0.36, 1);
     --font: "Inter", "Segoe UI", system-ui, -apple-system, sans-serif;
@@ -26,7 +26,7 @@
   .top {
     position: sticky; top: 0; z-index: 10;
     display: flex; align-items: center; gap: 14px; padding: 14px 28px;
-    background: rgba(24, 28, 23, 0.92); backdrop-filter: blur(12px);
+    background: rgba(28, 21, 16, 0.92); backdrop-filter: blur(12px);
     border-bottom: 1px solid var(--border);
   }
   .top img { width: 32px; height: 32px; border-radius: 6px; }
@@ -38,7 +38,7 @@
     width: 100%; padding: 8px 12px; border-radius: 8px; border: 1px solid var(--border);
     background: var(--surface); color: var(--light); font: 14px var(--font); outline: none;
   }
-  .search input:focus { border-color: var(--lime); box-shadow: 0 0 0 3px rgba(205, 242, 82, 0.15); }
+  .search input:focus { border-color: var(--lime); box-shadow: 0 0 0 3px rgba(232, 178, 76, 0.15); }
 
   .layout { display: grid; grid-template-columns: 240px 1fr; max-width: 1180px; margin: 0 auto; }
   nav.side { position: sticky; top: 64px; align-self: start; height: calc(100vh - 64px); overflow: auto; padding: 24px 12px 24px 28px; }
@@ -74,7 +74,7 @@
     border: 1px solid var(--border); background: var(--surface); border-radius: var(--radius);
     margin: 10px 0; transition: border-color .25s var(--ease);
   }
-  details[open] { border-color: rgba(205, 242, 82, 0.35); }
+  details[open] { border-color: rgba(232, 178, 76, 0.35); }
   summary {
     cursor: pointer; list-style: none; padding: 14px 18px; display: flex; align-items: center; gap: 12px;
     color: var(--light); font-weight: 600;
@@ -140,25 +140,25 @@
   ::-webkit-scrollbar-thumb { background: #3A4436; border: 3px solid transparent; background-clip: padding-box; border-radius: 999px; }
   ::-webkit-scrollbar-thumb:hover { background: var(--muted-2); background-clip: padding-box; }
   ::-webkit-scrollbar-thumb:active { background: var(--lime); background-clip: padding-box; }
-  .teamsim { position: relative; height: clamp(380px, 56vh, 540px); margin: 18px 0 8px; border: 1px solid var(--border); border-radius: 16px; overflow: hidden; background: radial-gradient(ellipse at 50% 42%, rgba(205, 242, 82, 0.08), transparent 62%), var(--bg); }
-  .teamsim.has-3d::after { content: ""; position: absolute; left: 0; right: 0; bottom: 0; height: 150px; background: linear-gradient(transparent, rgba(24, 28, 23, 0.94) 70%); pointer-events: none; }
+  .teamsim { position: relative; height: clamp(380px, 56vh, 540px); margin: 18px 0 8px; border: 1px solid var(--border); border-radius: 16px; overflow: hidden; background: radial-gradient(ellipse at 50% 42%, rgba(232, 178, 76, 0.08), transparent 62%), var(--bg); }
+  .teamsim.has-3d::after { content: ""; position: absolute; left: 0; right: 0; bottom: 0; height: 150px; background: linear-gradient(transparent, rgba(28, 21, 16, 0.94) 70%); pointer-events: none; }
   .teamsim-3d { position: absolute; inset: 0; width: 100%; height: 100%; opacity: 0; transition: opacity 1.2s var(--ease); }
   .teamsim-3d.on { opacity: 1; }
   .grab { touch-action: pan-y; cursor: grab; } .grab:active { cursor: grabbing; }
   .sc-labels { position: absolute; inset: 0; pointer-events: none; overflow: hidden; }
-  .sc-label { position: absolute; left: 0; top: 0; font: 500 10px var(--mono); letter-spacing: 0.06em; color: var(--cream); background: rgba(24, 28, 23, 0.72); border: 1px solid var(--border); padding: 1px 7px; border-radius: 999px; white-space: nowrap; opacity: 0; transition: opacity .3s; will-change: transform; }
+  .sc-label { position: absolute; left: 0; top: 0; font: 500 10px var(--mono); letter-spacing: 0.06em; color: var(--cream); background: rgba(28, 21, 16, 0.72); border: 1px solid var(--border); padding: 1px 7px; border-radius: 999px; white-space: nowrap; opacity: 0; transition: opacity .3s; will-change: transform; }
   .sc-label.you { color: var(--bg); background: var(--lime); border-color: var(--lime); font-weight: 700; }
   .sc-label.roy { color: var(--light); background: var(--key); border-color: var(--key); font-weight: 700; }
   .sc-label.memory { color: var(--lime); }
   .sc-top { position: absolute; top: 14px; left: 14px; right: 14px; display: flex; justify-content: space-between; align-items: flex-start; gap: 10px; z-index: 1; }
-  .sc-modes { display: inline-flex; padding: 3px; border: 1px solid var(--border); border-radius: 999px; background: rgba(24, 28, 23, 0.82); }
+  .sc-modes { display: inline-flex; padding: 3px; border: 1px solid var(--border); border-radius: 999px; background: rgba(28, 21, 16, 0.82); }
   .sc-modes button { font: 600 12px var(--font); color: var(--muted); background: none; border: 0; padding: 6px 14px; border-radius: 999px; cursor: pointer; transition: background .25s var(--ease), color .25s var(--ease); }
   .sc-modes button[aria-pressed="true"] { background: var(--lime); color: var(--bg); }
   .sc-modes button:focus-visible { outline: 2px solid var(--lime); outline-offset: 2px; }
   .sc-hint { font: 11px var(--mono); color: var(--muted-2); padding-top: 8px; }
   .sc-caption { position: absolute; left: 16px; right: 16px; bottom: 74px; margin: 0; max-width: 600px; font-size: 14px; color: var(--light); text-shadow: 0 1px 10px var(--bg), 0 0 2px var(--bg); z-index: 1; }
   .sc-stats { position: absolute; left: 14px; right: 14px; bottom: 14px; display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 8px; margin: 0; z-index: 1; }
-  .sc-stats div { background: rgba(24, 28, 23, 0.82); border: 1px solid var(--border); border-radius: 10px; padding: 6px 12px; }
+  .sc-stats div { background: rgba(28, 21, 16, 0.82); border: 1px solid var(--border); border-radius: 10px; padding: 6px 12px; }
   .sc-stats dt { font: 500 10px var(--mono); letter-spacing: 0.1em; text-transform: uppercase; color: var(--muted-2); }
   .sc-stats dd { margin: 0; font: 800 20px var(--font); color: var(--lime); font-variant-numeric: tabular-nums; }
   .teamsim:not(.has-3d) .sc-modes, .teamsim:not(.has-3d) .sc-stats, .teamsim:not(.has-3d) .sc-hint { display: none; }

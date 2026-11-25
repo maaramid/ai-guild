@@ -716,9 +716,9 @@
       "cursor": "Cursor Agent CLI —— 使用你的 Cursor 额度（Luna、Composer 等）"
     },
     "home": {
-      "descPlain": "为应用创建一个新的空文件夹作为家。应用记住的一切——它自己的设置和你智能体的记忆——都存放在这里。像 ~/HarnessAgents 这样的地方就很合适。如果它不存在，我们会为你创建。",
-      "desc": "选择一个文件夹，harness 会在其中存放自己的文件——智能体元数据、日志，以及你从这里创建的任何新仓库。像 ~/HarnessAgents 这样的地方就是个不错的默认选择。不存在的话我们会创建它。",
-      "placeholder": "/path/to/HarnessAgents",
+      "descPlain": "为应用创建一个新的空文件夹作为家。应用记住的一切——它自己的设置和你智能体的记忆——都存放在这里。像 ~/AIGuildAgents 这样的地方就很合适。如果它不存在，我们会为你创建。",
+      "desc": "选择一个文件夹，harness 会在其中存放自己的文件——智能体元数据、日志，以及你从这里创建的任何新仓库。像 ~/AIGuildAgents 这样的地方就是个不错的默认选择。不存在的话我们会创建它。",
+      "placeholder": "/path/to/AIGuildAgents",
       "createPick": "创建 / 选择",
       "pick": "选择",
       "notePlain": "你日常不需要打开这个文件夹——它只是应用存放笔记的地方，这样重启时什么都不会丢。",

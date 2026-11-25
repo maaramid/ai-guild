@@ -716,9 +716,9 @@
       "cursor": "Cursor Agent CLI — uses your Cursor credits (Luna, Composer, …)"
     },
     "home": {
-      "descPlain": "Create a new, empty folder for the app to call home. Everything the app remembers — its own settings and your agents' memory — is stored here. Something like ~/HarnessAgents works well. We'll create it for you if it doesn't exist.",
-      "desc": "Pick a folder where the harness will keep its own files — agent metadata, logs, and any new repos you create from here. Something like ~/HarnessAgents is a fine default. We'll create it if it doesn't exist.",
-      "placeholder": "/path/to/HarnessAgents",
+      "descPlain": "Create a new, empty folder for the app to call home. Everything the app remembers — its own settings and your agents' memory — is stored here. Something like ~/AIGuildAgents works well. We'll create it for you if it doesn't exist.",
+      "desc": "Pick a folder where the harness will keep its own files — agent metadata, logs, and any new repos you create from here. Something like ~/AIGuildAgents is a fine default. We'll create it if it doesn't exist.",
+      "placeholder": "/path/to/AIGuildAgents",
       "createPick": "create / pick",
       "pick": "pick",
       "notePlain": "You won't need to open this folder day-to-day — it's just where the app keeps its notes so nothing is lost when you restart.",

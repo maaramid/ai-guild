@@ -166,8 +166,8 @@ test('worktree paths and notes survive the round trip verbatim', () => {
   const agent = {
     id: 'w1',
     name: 'Jim',
-    cwd: '/Users/x/HarnessAgents/worktrees/w1',
-    worktreePath: '/Users/x/HarnessAgents/worktrees/w1',
+    cwd: '/Users/x/AIGuildAgents/worktrees/w1',
+    worktreePath: '/Users/x/AIGuildAgents/worktrees/w1',
     note: '- shipping the queue fix\n- then the roster'
   };
   const store = storeAt(home);

@@ -1,7 +1,7 @@
 'use strict';
 
 /**
- * #140 — onboarding died on `ENOENT: mkdir '~/HarnessAgents'`: the wizard lets
+ * #140 — onboarding died on `ENOENT: mkdir '~/AIGuildAgents'`: the wizard lets
  * the user TYPE the harness-home path, and Node's mkdir/resolve treat `~` as a
  * literal directory name. The write-side seams expand it now, but a config.json
  * PERSISTED by a pre-fix build still holds literal `~/…` strings that nothing
@@ -35,14 +35,14 @@ test.after(() => { fs.rmSync(userData, { recursive: true, force: true }); });
 test('readConfig serves a pre-fix config with every ~ expanded (the upgrade path)', () => {
   const home = os.homedir();
   fs.writeFileSync(path.join(userData, 'config.json'), JSON.stringify({
-    harnessHome: '~/HarnessAgents',
+    harnessHome: '~/AIGuildAgents',
     // A stale tilde entry, its already-absolute twin, and an unrelated recent.
-    recentHives: ['~/HarnessAgents', path.join(home, 'HarnessAgents'), '~/OtherHive']
+    recentHives: ['~/AIGuildAgents', path.join(home, 'AIGuildAgents'), '~/OtherHive']
   }));
   const cfg = readConfig();
-  assert.equal(cfg.harnessHome, path.join(home, 'HarnessAgents'));
+  assert.equal(cfg.harnessHome, path.join(home, 'AIGuildAgents'));
   assert.deepEqual(cfg.recentHives, [
-    path.join(home, 'HarnessAgents'), // tilde + absolute twin collapse to one
+    path.join(home, 'AIGuildAgents'), // tilde + absolute twin collapse to one
     path.join(home, 'OtherHive')
   ]);
   assert.ok(!JSON.stringify(cfg.recentHives).includes('~'), 'no consumer ever sees a ~ path');

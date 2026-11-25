@@ -173,12 +173,12 @@ export function OnboardingWizard({ onComplete }: OnboardingWizardProps) {
   // field rendered empty "— leaving the copy above promising a default the user
   // could not accept, and Finish failing with "Pick a harness home folder first."
   //
-  // Suggest the literal `~/HarnessAgents` instead. That is exactly the string
+  // Suggest the literal `~/AIGuildAgents` instead. That is exactly the string
   // #140's normalizeHiveHome()/expandTilde() were built to absorb: it is expanded
   // at the config-write boundary AND at ensureHarnessHome's mkdir, so every
   // downstream reader still sees one absolute path. No new IPC surface.
   useEffect(() => {
-    if (!home) setHome('~/HarnessAgents');
+    if (!home) setHome('~/AIGuildAgents');
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 

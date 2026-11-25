@@ -4979,8 +4979,8 @@ export const RetroOffice3D = memo(function RetroOffice3D({
             {/* Static lighting: a sky/ground wash so walls and floor shade softly,
                 a warm key that casts the (rarely redrawn) shadows, a cool fill. */}
             {sceneStyle?.sky ? <color attach="background" args={[sceneStyle.sky]} /> : null}
-            <hemisphereLight intensity={0.5 * lightScale} color={sceneStyle?.lightColor ?? "#f3f0e6"} groundColor="#2A3128" />
-            <ambientLight intensity={0.34 * lightScale} color={sceneStyle?.lightColor ?? "#e6ecdd"} />
+            <hemisphereLight intensity={0.5 * lightScale} color={sceneStyle?.lightColor ?? "#f3f0e6"} groundColor="#30261D" />
+            <ambientLight intensity={0.34 * lightScale} color={sceneStyle?.lightColor ?? "#f0e6d6"} />
             <directionalLight
               position={[8, 14, 6]}
               intensity={1.15 * lightScale}

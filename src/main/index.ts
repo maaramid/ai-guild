@@ -1566,7 +1566,7 @@ function openHelpWindow(section?: string, page = 'index.html'): void {
     width: 1100, height: 820, minWidth: 420, minHeight: 480,
     title: 'How to use AI Guild',
     icon: appIconPath(),
-    backgroundColor: '#181C17',
+    backgroundColor: '#1C1510',
     autoHideMenuBar: true,
     webPreferences: { sandbox: true, contextIsolation: true, nodeIntegration: false }
   });

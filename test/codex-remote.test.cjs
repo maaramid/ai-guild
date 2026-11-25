@@ -28,7 +28,7 @@ test('Codex remote uses a short stable per-agent home alias', {
 test('the default alias root yields a socket within sun_path', () => {
   // The real hive home that failed with "path must be shorter than SUN_LEN".
   const realHome =
-    '/Users/vyapakgoyal/Documents/HarnessAgents/hive/agents/dev2-mrxb3l43/.codex';
+    '/Users/vyapakgoyal/Documents/AIGuildAgents/hive/agents/dev2-mrxb3l43/.codex';
   const socket =
     codexRemoteAliasPath(realHome, 'dev2-mrxb3l43') + '/' + CODEX_REMOTE_SOCKET_RELATIVE;
   assert.ok(

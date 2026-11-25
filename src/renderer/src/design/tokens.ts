@@ -3,21 +3,21 @@
 
 export const colors = {
   cream: {
-    50: 0xf7f9f2,
-    100: 0xf0f3e8,
-    200: 0xe5eadb,
-    300: 0xd8dfcb
+    50: 0xfaf6ee,
+    100: 0xf3ece0,
+    200: 0xe9dfcf,
+    300: 0xdccfba
   },
   paper: {
-    100: 0xfffffb,
-    200: 0xedf1e3
+    100: 0xfffcf6,
+    200: 0xf0e8da
   },
   ink: {
-    900: 0x181c17,
-    700: 0x363d32,
-    500: 0x596254,
-    300: 0x737c6a,
-    100: 0xd9dfcf
+    900: 0x1c1510,
+    700: 0x3e3128,
+    500: 0x63554a,
+    300: 0x7d6e5e,
+    100: 0xe0d4c2
   },
   // v0.3.4 recalibration: same hues, professional saturation (mirrors tokens.css)
   accent: {
@@ -27,22 +27,22 @@ export const colors = {
     mintLight: 0xdcebd2,
     sky: 0x4a8a9a,
     skyLight: 0xd3e6ea,
-    lemon: 0xcdf252,
-    lemonLight: 0xf0fbcf,
+    lemon: 0xe8b24c,
+    lemonLight: 0xf8eacb,
     lilac: 0x8a79c2,
     lilacLight: 0xe3ddf2,
     peach: 0xd4af37,
     peachLight: 0xf4e9c4
   },
   // Brand key accent (--cth-key): the ONE key word, asterisks.
-  key: 0xe1642d,
+  key: 0xc9472f,
   status: {
     idle: 0xa3977f,
     thinking: 0x4a8a9a,
     working: 0x9dbb2e,
     blocked: 0xcf5f52,
     success: 0x5e9a4e,
-    ghost: 0xd9dfcf
+    ghost: 0xe0d4c2
   },
   world: {
     grassLight: 0xd4eab0,

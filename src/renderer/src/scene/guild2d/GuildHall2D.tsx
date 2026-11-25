@@ -77,8 +77,8 @@ const LS_DESKS = 'aiguild.guild2d.desks';
 
 const COLORS = { working: '#22c55e', waiting: '#f59e0b', idle: '#94a3b8', error: '#ef4444' };
 const BRAND = {
-  lime: '#CDF252', dark: '#181C17', panel: 'rgba(24, 28, 23, 0.9)', line: 'rgba(205, 242, 82, 0.28)',
-  text: '#E6ECDD', muted: '#9AA38F', gold: '#d8b45a'
+  lime: '#E8B24C', dark: '#1C1510', panel: 'rgba(28, 21, 16, 0.9)', line: 'rgba(232, 178, 76, 0.28)',
+  text: '#F0E6D6', muted: '#A8977F', gold: '#d8b45a'
 };
 
 const shortName = (n: string) => n.split(' - ')[0].trim() || n;

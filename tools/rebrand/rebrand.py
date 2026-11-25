@@ -24,6 +24,7 @@ REPO = 'maaramid/ai-guild'             # your GitHub repo: app updates + downloa
 SITE = 'maaramid.github.io/ai-guild'   # your website
 EMAIL_DOMAIN = 'maaramid.com'
 APP_ID = 'com.maaramid.aiguild'
+AGENTS_DIR = 'AIGuildAgents'           # suggested agents folder (~/AIGuildAgents)
 
 BOSS_OLD, BOSS_NEW = 'Ramon', 'Roy'
 NAMES = {   # DevLabs display name -> AI Guild name (OG + isekai anime mix)
@@ -67,6 +68,7 @@ PAIRS = [
     ('ph.automatika.jepoyfloorai', APP_ID),
     ('https://jepoy.dev/floors/', f'https://{SITE}/floors/'),
     ('jepoy.dev/#download', f'{SITE}/#download'),
+    ('HarnessAgents', AGENTS_DIR),   # own agents folder, never shared with DevLabs
     (f'{BOSS_OLD.lower()}s-command-center', f'{BOSS_NEW.lower()}s-command-center'),
     (f'is{BOSS_OLD}', f'is{BOSS_NEW}'),
 ]
@@ -283,6 +285,88 @@ def patch_locales(out):
     return misses
 
 
+# ─── colours: DevLabs lime/green-grey → AI Guild gold on warm brown ─────────
+RECOLOR = {
+    # accents
+    'CDF252': 'E8B24C', 'F0FBCF': 'F8EACB', '2D3517': '3A2C14', 'E1642D': 'C9472F', 'C7FD11': 'E8B24C',
+    # light theme ground + ink
+    'F7F9F2': 'FAF6EE', 'F0F3E8': 'F3ECE0', 'E5EADB': 'E9DFCF', 'D8DFCB': 'DCCFBA', 'FFFFFB': 'FFFCF6',
+    'EDF1E3': 'F0E8DA', '181C17': '1C1510', '363D32': '3E3128', '596254': '63554A', '737C6A': '7D6E5E',
+    'D9DFCF': 'E0D4C2',
+    # dark theme ground + text ramp
+    '1D221C': '211A14', '232922': '2A2119', '2F362D': '372B21', '2A3128': '30261D', 'E6ECDD': 'F0E6D6',
+    'C1C9B6': 'CDBFA9', '9AA38F': 'A8977F', '828C78': '8C7B66', 'CDF252'.lower(): 'E8B24C',
+}
+RECOLOR_DIRS = ('src', 'resources/help', 'site', 'docs/hires')
+
+
+def _rgb(h):
+    return ', '.join(str(int(h[i:i + 2], 16)) for i in (0, 2, 4))
+
+
+def recolor(out):
+    pairs = []
+    for a, b in RECOLOR.items():
+        a, b = a.upper(), b.upper()
+        pairs.append((re.compile(r'(#|0x)' + a + r'\b', re.I), lambda m, b=b: m.group(1) + (b if m.group(0)[len(m.group(1)):].isupper() or m.group(1) == '#' and m.group(0)[1:].isupper() else b.lower())))
+        ra, rb = _rgb(a), _rgb(b)
+        pairs.append((re.compile(r'\b' + ra.replace(', ', r',\s*') + r'(?=\s*[,)])'), lambda m, rb=rb: rb))
+    n = 0
+    for d in RECOLOR_DIRS:
+        root = os.path.join(out, *d.split('/'))
+        for r, _, files in os.walk(root):
+            for f in files:
+                if os.path.splitext(f)[1].lower() not in ('.ts', '.tsx', '.css', '.html', '.js', '.json', '.svg'):
+                    continue
+                p = os.path.join(r, f)
+                try:
+                    s = open(p, encoding='utf-8', newline='').read()
+                except UnicodeDecodeError:
+                    continue
+                new = s
+                for rx, fn in pairs:
+                    new = rx.sub(fn, new)
+                if new != s:
+                    open(p, 'w', encoding='utf-8', newline='').write(new); n += 1
+    return n
+
+
+# ─── version: always rise above the current AI Guild version ───────────────
+# DevLabs' CI (kept here) requires package.json's version to rise on every push
+# to main. The new version is the higher of DevLabs' own version and the
+# repository's current version + 1 patch.
+def bump_version(out):
+    import json
+    def parse(v):
+        return tuple(int(x) for x in v.split('.'))
+    pkg_p = os.path.join(out, 'package.json')
+    lock_p = os.path.join(out, 'package-lock.json')
+    pkg = json.load(open(pkg_p, encoding='utf-8'))
+    upstream = pkg['version']
+    repo_pkg = os.path.join(os.path.dirname(os.path.dirname(LP(KIT))), 'package.json')
+    current = None
+    if os.path.exists(repo_pkg):
+        cur = json.load(open(repo_pkg, encoding='utf-8'))
+        if cur.get('name') == SLUG:
+            current = cur.get('version')
+    final = upstream
+    if current:
+        ma, mi, pa = parse(current)
+        nxt = (ma, mi, pa + 1)
+        final = '.'.join(map(str, max(parse(upstream), nxt)))
+    for path in (pkg_p, lock_p):
+        if not os.path.exists(path):
+            continue
+        s = open(path, encoding='utf-8', newline='').read()
+        d = json.loads(s)
+        d['version'] = final
+        if 'packages' in d and '' in d['packages']:
+            d['packages']['']['version'] = final
+        indent = '\t' if '\n\t' in s[:200] else 2
+        open(path, 'w', encoding='utf-8', newline='\n').write(json.dumps(d, ensure_ascii=False, indent=indent) + '\n')
+    return upstream, current, final
+
+
 def apply_patches(out, table, label):
     misses = []
     for rel, pairs in table.items():
@@ -329,9 +413,12 @@ def main():
     changed = token_pass(src, out)
     misses = apply_patches(out, PATCHES, 'patch') + apply_patches(out, EXTRAS, 'extra') + apply_patches(out, GUILD, 'guild') + patch_locales(out)
     copy_overlay(out)
+    recolored = recolor(out)
+    v_up, v_cur, v_new = bump_version(out)
     if tmp:
         shutil.rmtree(LP(tmp), ignore_errors=True)
-    print(f'{BRAND}: {changed} files rebranded -> {sys.argv[2]}')
+    print(f'{BRAND}: {changed} files rebranded, {recolored} recoloured -> {sys.argv[2]}')
+    print(f'Version: DevLabs {v_up}, AI Guild was {v_cur or "-"}, now {v_new}')
     if misses:
         print('\nCheck these by hand (DevLabs changed that code):')
         for m in misses:

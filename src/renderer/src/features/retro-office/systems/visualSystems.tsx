@@ -199,8 +199,8 @@ export function TrailSystem({
   );
 }
 
-const HIGHLIGHT_LIME = "#CDF252";
-const HIGHLIGHT_KEY = "#E1642D";
+const HIGHLIGHT_LIME = "#E8B24C";
+const HIGHLIGHT_KEY = "#C9472F";
 
 /** Rings on the floor under the hovered and the selected agent, and a pad under
  *  the hovered desk. The rings keep a constant size on screen, so they read the

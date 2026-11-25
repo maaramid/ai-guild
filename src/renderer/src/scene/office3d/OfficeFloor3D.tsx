@@ -68,13 +68,13 @@ const ATM_ANALYTICS = {};
 // Brand palette (design/tokens.css) for the inline-styled floor bar; the
 // Tailwind-styled office screens get the same values from retro-office.css.
 const BRAND = {
-  lime: '#CDF252',
-  key: '#E1642D',
-  dark: '#181C17',
-  panel: 'rgba(24, 28, 23, 0.94)',
-  line: 'rgba(205, 242, 82, 0.28)',
-  text: '#E6ECDD',
-  muted: '#9AA38F'
+  lime: '#E8B24C',
+  key: '#C9472F',
+  dark: '#1C1510',
+  panel: 'rgba(28, 21, 16, 0.94)',
+  line: 'rgba(232, 178, 76, 0.28)',
+  text: '#F0E6D6',
+  muted: '#A8977F'
 } as const;
 
 const isRoy = (a: Agent) => a.id === 'god' || !!a.isGod;
@@ -530,8 +530,8 @@ function BuildingFloors({ levels, pinned, active, onPick }: {
           style={{
             display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 10, flexShrink: 0,
             padding: '4px 8px', borderRadius: 4, cursor: 'pointer', border: '1px solid', whiteSpace: 'nowrap',
-            borderColor: i === active ? BRAND.lime : 'rgba(230, 236, 221, 0.1)',
-            background: i === active ? 'rgba(205, 242, 82, 0.14)' : 'rgba(230, 236, 221, 0.04)',
+            borderColor: i === active ? BRAND.lime : 'rgba(240, 230, 214, 0.1)',
+            background: i === active ? 'rgba(232, 178, 76, 0.14)' : 'rgba(240, 230, 214, 0.04)',
             color: i === active ? BRAND.lime : BRAND.muted, font: 'inherit', letterSpacing: 'inherit'
           }}
         >
@@ -541,7 +541,7 @@ function BuildingFloors({ levels, pinned, active, onPick }: {
               <span key={w} style={{
                 width: 5, height: 8, borderRadius: 1,
                 background: lit[w] ?? 'transparent',
-                boxShadow: lit[w] ? undefined : 'inset 0 0 0 1px rgba(230, 236, 221, 0.14)'
+                boxShadow: lit[w] ? undefined : 'inset 0 0 0 1px rgba(240, 230, 214, 0.14)'
               }} />
             ))}
           </span>

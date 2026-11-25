@@ -28,18 +28,18 @@ export interface OfficeThemePanelProps {
 
 const panel: React.CSSProperties = {
   position: 'absolute', right: 10, bottom: 52, zIndex: 40, width: 360, maxHeight: 'calc(100% - 80px)', overflowY: 'auto',
-  padding: 12, borderRadius: 10, background: 'rgba(24, 28, 23, 0.97)', border: '1px solid rgba(205, 242, 82, 0.28)',
-  color: '#E6ECDD', font: '12px/1.4 var(--cth-font-ui)'
+  padding: 12, borderRadius: 10, background: 'rgba(28, 21, 16, 0.97)', border: '1px solid rgba(232, 178, 76, 0.28)',
+  color: '#F0E6D6', font: '12px/1.4 var(--cth-font-ui)'
 };
 const btn: React.CSSProperties = {
-  padding: '5px 10px', borderRadius: 6, cursor: 'pointer', border: '1px solid rgba(205, 242, 82, 0.28)',
-  background: 'transparent', color: '#CDF252', font: '800 11px/1 var(--cth-font-display)', textTransform: 'lowercase'
+  padding: '5px 10px', borderRadius: 6, cursor: 'pointer', border: '1px solid rgba(232, 178, 76, 0.28)',
+  background: 'transparent', color: '#E8B24C', font: '800 11px/1 var(--cth-font-display)', textTransform: 'lowercase'
 };
-const primary: React.CSSProperties = { ...btn, background: '#CDF252', color: '#181C17' };
-const muted: React.CSSProperties = { color: '#9AA38F', fontSize: 11 };
+const primary: React.CSSProperties = { ...btn, background: '#E8B24C', color: '#1C1510' };
+const muted: React.CSSProperties = { color: '#A8977F', fontSize: 11 };
 const input: React.CSSProperties = {
-  width: '100%', padding: '5px 8px', borderRadius: 6, border: '1px solid rgba(205, 242, 82, 0.28)',
-  background: 'rgba(255,255,255,0.04)', color: '#E6ECDD', font: 'inherit'
+  width: '100%', padding: '5px 8px', borderRadius: 6, border: '1px solid rgba(232, 178, 76, 0.28)',
+  background: 'rgba(255,255,255,0.04)', color: '#F0E6D6', font: 'inherit'
 };
 
 export function OfficeThemePanel({ namespace, desks, agents, onApplied, onClose }: OfficeThemePanelProps) {
@@ -140,7 +140,7 @@ export function OfficeThemePanel({ namespace, desks, agents, onApplied, onClose 
   return (
     <div style={panel} role="dialog" aria-label={t('office.theme.title')}>
       <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 8 }}>
-        <strong style={{ font: '800 12px/1 var(--cth-font-display)', color: '#CDF252' }}>{t('office.theme.title')}</strong>
+        <strong style={{ font: '800 12px/1 var(--cth-font-display)', color: '#E8B24C' }}>{t('office.theme.title')}</strong>
         <button type="button" onClick={onClose} style={btn} aria-label={t('common.close')}>×</button>
       </div>
       <p style={{ ...muted, margin: '0 0 10px' }}>{t('office.theme.desc', { count: current.length })}</p>
@@ -188,7 +188,7 @@ export function OfficeThemePanel({ namespace, desks, agents, onApplied, onClose 
       )}
 
       {/* Ask an AI */}
-      <div style={{ borderTop: '1px solid rgba(205, 242, 82, 0.18)', paddingTop: 8 }}>
+      <div style={{ borderTop: '1px solid rgba(232, 178, 76, 0.18)', paddingTop: 8 }}>
         <div style={{ marginBottom: 4 }}>{t('office.theme.aiTitle')}</div>
         <p style={{ ...muted, margin: '0 0 6px' }}>{t('office.theme.aiDesc')}</p>
         <div style={{ display: 'flex', gap: 6 }}>
@@ -197,7 +197,7 @@ export function OfficeThemePanel({ namespace, desks, agents, onApplied, onClose 
         </div>
       </div>
 
-      {note && <div style={{ marginTop: 8, fontSize: 11, color: note.error ? '#FF8A80' : '#CDF252', wordBreak: 'break-word' }}>{note.text}</div>}
+      {note && <div style={{ marginTop: 8, fontSize: 11, color: note.error ? '#FF8A80' : '#E8B24C', wordBreak: 'break-word' }}>{note.text}</div>}
     </div>
   );
 }

@@ -884,12 +884,12 @@ export function writeConfig(patch: Partial<HarnessConfig>): HarnessConfig {
     };
   }
   // The HIVE HOME needs the exact same treatment as registeredRepos above, and for
-  // years it did not get it (#140). Onboarding SUGGESTS `~/HarnessAgents` and the
+  // years it did not get it (#140). Onboarding SUGGESTS `~/AIGuildAgents` and the
   // field is free text, so the common path — accept the default, press Finish —
   // persisted a literal `~`. The first thing the finish step does is create the
   // directory, and Node's mkdir has no idea what `~` means: it tried to make a
   // folder actually named "~", which fails as
-  //   ENOENT: no such file or directory, mkdir '~/HarnessAgents'
+  //   ENOENT: no such file or directory, mkdir '~/AIGuildAgents'
   // and left the wizard wedged on its last step with no way forward. Expand BEFORE
   // the value is persisted or copied into recentHives, so every downstream reader
   // (mkdir, the hive root, the launch picker) sees one absolute path.
@@ -983,7 +983,7 @@ export function modelForRole(
 
 /** Ensure harnessHome exists on disk. Expands `~` first — the onboarding wizard
  *  lets the user type the path, and mkdir treats a literal `~` as a plain
- *  directory name (issue #140's `ENOENT: mkdir '~/HarnessAgents'`). */
+ *  directory name (issue #140's `ENOENT: mkdir '~/AIGuildAgents'`). */
 export function ensureHarnessHome(path: string): { ok: boolean; error?: string } {
   try {
     // Expand HERE too, not only at the config write (#140). This runs FIRST —

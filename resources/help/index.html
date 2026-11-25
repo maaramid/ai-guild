@@ -7,9 +7,9 @@
 <title>How to use AI Guild</title>
 <style>
   :root {
-    --bg: #181C17; --surface: #232922; --surface-2: #2A3128; --border: #2F362D;
-    --cream: #E6ECDD; --light: #F4F7EE; --muted: #9AA38F; --muted-2: #828C78;
-    --lime: #CDF252; --lime-press: #B9DE3C; --gold: #D4AF37; --coral: #E0826F; --key: #E1642D;
+    --bg: #1C1510; --surface: #2a2119; --surface-2: #30261D; --border: #372B21;
+    --cream: #F0E6D6; --light: #F4F7EE; --muted: #A8977F; --muted-2: #8C7B66;
+    --lime: #E8B24C; --lime-press: #B9DE3C; --gold: #D4AF37; --coral: #E0826F; --key: #C9472F;
     --radius: 10px;
     --ease: cubic-bezier(0.22, 1, 0.36, 1);
     --font: "Inter", "Segoe UI", system-ui, -apple-system, sans-serif;
@@ -26,7 +26,7 @@
   .top {
     position: sticky; top: 0; z-index: 10;
     display: flex; align-items: center; gap: 14px; padding: 14px 28px;
-    background: rgba(24, 28, 23, 0.92); backdrop-filter: blur(12px);
+    background: rgba(28, 21, 16, 0.92); backdrop-filter: blur(12px);
     border-bottom: 1px solid var(--border);
   }
   .top img { width: 32px; height: 32px; border-radius: 6px; }
@@ -38,7 +38,7 @@
     width: 100%; padding: 8px 12px; border-radius: 8px; border: 1px solid var(--border);
     background: var(--surface); color: var(--light); font: 14px var(--font); outline: none;
   }
-  .search input:focus { border-color: var(--lime); box-shadow: 0 0 0 3px rgba(205, 242, 82, 0.15); }
+  .search input:focus { border-color: var(--lime); box-shadow: 0 0 0 3px rgba(232, 178, 76, 0.15); }
 
   .layout { display: grid; grid-template-columns: 240px 1fr; max-width: 1180px; margin: 0 auto; }
   nav.side { position: sticky; top: 64px; align-self: start; height: calc(100vh - 64px); overflow: auto; padding: 24px 12px 24px 28px; }
@@ -74,7 +74,7 @@
     border: 1px solid var(--border); background: var(--surface); border-radius: var(--radius);
     margin: 10px 0; transition: border-color .25s var(--ease);
   }
-  details[open] { border-color: rgba(205, 242, 82, 0.35); }
+  details[open] { border-color: rgba(232, 178, 76, 0.35); }
   summary {
     cursor: pointer; list-style: none; padding: 14px 18px; display: flex; align-items: center; gap: 12px;
     color: var(--light); font-weight: 600;

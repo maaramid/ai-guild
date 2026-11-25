@@ -80,6 +80,12 @@ Change them in `rebrand.py` and run it again; no need to edit files one by one.
 
 - App name **AI Guild**, package `aiguild`, appId `com.maaramid.aiguild` (installs next to
   DevLabs without touching its data).
+- Own agents folder: onboarding suggests `~/AIGuildAgents`, never DevLabs' `~/HarnessAgents`.
+  Two apps on one agents folder overwrite each other's team list, so keep them apart.
+- Colours: DevLabs' lime green and green-grey are mapped to guild gold (`#E8B24C`) on warm
+  brown (`RECOLOR` in `rebrand.py`), in the app, Help pages and website.
+- Version: DevLabs' CI requires the version to rise on every push to `main`, so each rebrand
+  uses the higher of DevLabs' version and the current AI Guild version + 1 patch.
 - Installer files `AIGuild-<version>-...`; deep links `aiguild://floor?...`, `aiguild://hire?...`.
 - New "G" logo and icons (`tools/rebrand/overlay/`).
 
