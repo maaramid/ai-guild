@@ -1,0 +1,36 @@
+// Brand identity — single source of truth for the app name, slugs and the
+// Public GitHub distribution repo for updates; remote catalogs are separate.
+
+/** electron-builder.yml `appId`; also the Windows taskbar/notification id (app.setAppUserModelId). */
+export const APP_ID = 'com.maaramid.aiguild';
+/** Deep-link scheme for shareable hires (must match electron-builder.yml).
+ * Own scheme so AI Guild does not take over DevLabs' atmtlabs:// links. */
+export const PROTOCOL = 'aiguild';
+
+// ---------------------------------------------------------------------------
+// Identifiers that still carry the pre-rebrand (ATMT Labs) name on purpose.
+// Each one is coupled to state outside this repository; change them only
+// together with the external side:
+//   - GITHUB_REPO            the releases repo on GitHub
+//   - manifest spec tags     `atmt-labs/hire@1` / `atmt-labs/floor@1` in
+//                            src/shared/hire.ts and floor.ts (shared files)
+//   - `.atmt-skill.json`     metadata name in src/main/skillsCatalog.ts
+//   - `atmt-hive` / `atmt-`  hook and MCP ids already deployed on agent
+//                            machines (src/main/hive.ts, mcpCatalog.ts)
+// ---------------------------------------------------------------------------
+
+/**
+ * The public source repository; its releases are what installed clients poll
+ * for updates. Never put a GitHub credential in the app bundle.
+ * Keep this in sync with electron-builder.yml's publish block.
+ */
+export const GITHUB_REPO = 'maaramid/ai-guild';
+export const GITHUB_REPO_URL = GITHUB_REPO ? `https://github.com/${GITHUB_REPO}` : '';
+
+/** Optional repository for public docs/hero.json and docs/model-catalog.json.
+ * Empty, so the bundled catalogs stay active until one is configured. */
+export const CATALOG_REPO = '';
+
+export function rawRepoUrl(path: string): string {
+  return CATALOG_REPO ? `https://raw.githubusercontent.com/${CATALOG_REPO}/main/${path}` : '';
+}

@@ -1,0 +1,219 @@
+# Third-Party Notices
+
+AI Guild is open-source software released under the MIT License (see LICENSE).
+It incorporates third-party components that are licensed under their own terms, reproduced
+below as those licenses require.
+
+---
+
+## Based on — DevLabs by Jeffrey Cayao (MIT License)
+
+AI Guild is a rebrand of **DevLabs** (https://github.com/jeffreycayao/Dev-Labs),
+Copyright (c) 2026 Jeffrey Cayao (jepoy.dev, https://jepoy.dev), released under the MIT License.
+The full notice is in [`LICENSE`](./LICENSE).
+
+## Original application — Munder Difflin by Chaitanya Giri (MIT License)
+
+AI Guild is a fork of **Munder Difflin** (https://github.com/chaitanyagiri/munder-difflin,
+https://munderdiffl.in/), the open-source multi-agent desktop harness created by
+**Chaitanya Giri**. Thank you, Chaitanya. It is used under the following license:
+
+```
+MIT License
+
+Copyright (c) 2026 Chaitanya Giri
+
+Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated documentation files (the "Software"), to deal
+in the Software without restriction, including without limitation the rights
+to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+copies of the Software, and to permit persons to whom the Software is
+furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in all
+copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+SOFTWARE.
+```
+
+---
+
+## 3D office — Claw3D by Luke The Dev (MIT License)
+
+The 3D office (src/renderer/src/features/retro-office, src/renderer/src/lib/avatars/profile.ts
+and the furniture models in src/renderer/public/office-assets) is ported from **Claw3D**.
+The furniture `.glb` models appear to come from Kenney's Furniture Kit (CC0), and 3D labels
+use Kenney's `kenpixel.ttf` font (CC0), bundled with three.js. Claw3D is used under the
+following license:
+
+```
+MIT License
+
+Copyright (c) 2026 Luke The Dev
+
+Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated documentation files (the "Software"), to deal
+in the Software without restriction, including without limitation the rights
+to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+copies of the Software, and to permit persons to whom the Software is
+furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in all
+copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+SOFTWARE.
+```
+
+---
+
+## Online services used by optional office features
+
+The jukebox uses the Spotify Web API and is subject to the Spotify Developer Terms; Spotify content and trademarks belong to Spotify. Spoken replies use the ElevenLabs API. Talking to Roy uses the OpenAI Realtime API or Google's Gemini Live API (Gemini API Additional Terms of Service), whichever you pick, with your own key. The Fireflies.ai connector uses Fireflies' hosted MCP server under Fireflies' terms. None is bundled; each runs only after you connect your own account.
+
+---
+
+## Git tools (used, not bundled)
+
+AI Guild runs **Git** (https://git-scm.com/, GPL-2.0, by Linus Torvalds, Junio C Hamano and the
+Git community), **Git for Windows** (https://gitforwindows.org/), **Git LFS**
+(https://git-lfs.com/, MIT) and the **GitHub CLI** (https://cli.github.com/, MIT) from the copies
+installed on your computer. AI Guild does not ship, modify or link any of them, so their licenses
+are not reproduced here.
+
+---
+
+## Browser automation — agent-browser by Vercel (Apache-2.0, used, not bundled)
+
+The optional **Agent Browser** capability runs **agent-browser** (https://github.com/vercel-labs/agent-browser,
+Copyright Vercel, Inc., Apache License 2.0) from npm on your computer, pinned to one version. It is on by default
+and can be switched off in Settings → General → Features or Settings → Connections. It in turn downloads
+**Chrome for Testing** (Google; Chromium's BSD-style license plus Google's terms) into `~/.agent-browser`.
+AI Guild ships neither; the `agent-browser` skill under `resources/skills/` is written by the AI Guild
+maintainers (MIT, with the app) and copies no text from the project.
+
+---
+
+## Brand colors
+
+The AI Guild brand colors are by **Vee Trimidal** (https://www.facebook.com/veetrimidal).
+
+---
+
+## Pixel-art assets — LimeZu
+
+Office tilesets and interiors: "Modern Interiors - RPG Tileset [16X16]" by LimeZu
+(https://limezu.itch.io/), used under the LimeZu license, which permits commercial use
+with credit. See LICENSE-ASSETS.
+
+---
+
+## Bundled agent skills
+
+These skills are copied unmodified, at the commits pinned in `tools/third-party-skills.json`,
+into `resources/skills/` and given to every agent. Each skill folder carries its project's
+full license text in a `LICENSE` file.
+
+- **skill-inspector** from NVIDIA SkillSpector (https://github.com/NVIDIA/SkillSpector),
+  Copyright (c) 2026 NVIDIA CORPORATION & AFFILIATES, Apache License 2.0.
+- **ponytail**, **ponytail-audit**, **ponytail-debt**, **ponytail-gain**, **ponytail-help**,
+  **ponytail-review** from ponytail (https://github.com/DietrichGebert/ponytail),
+  Copyright (c) 2026 DietrichGebert, MIT License.
+- **security-audit** from Cloudflare security-audit-skill
+  (https://github.com/cloudflare/security-audit-skill), Copyright (c) 2025-2026 Cloudflare, Inc.,
+  MIT License.
+
+The skills **game-dev-3d**, **threejs**, **animejs**, **ui-ux-review**, **devops-runbooks** and
+**security-research** are written by the AI Guild maintainers (MIT, with the app). They describe and
+link to Three.js (MIT, mrdoob and contributors), React Three Fiber and drei (MIT, Poimandres),
+Anime.js (MIT, Julian Garnier), Babylon.js (Apache-2.0) and Godot (MIT); no code or text from
+those projects is bundled in them.
+
+---
+
+## Agency personas and role templates — agency-agents (MIT License)
+
+The 268 persona files under `resources/agency-agents/<division>/` (listed in the app under
+Add agent → templates → Agency) are copied verbatim from **agency-agents**
+(https://github.com/msitarzewski/agency-agents) by Michael Sitarzewski and the AgentLand
+contributors, at the commit pinned in `tools/agency-agents.json`; the upstream LICENSE ships
+beside them. The freelancer role templates in `src/shared/agentTemplates.ts` (Client Relations
+Manager, Proposal & Quote Writer, Contract Reviewer, Invoicing & Collections Assistant,
+Portfolio & Case Study Writer, Scope Guardian, Project Handover Specialist) and the hand-off
+rules added to the Programmer, Scrum Master and Operations templates adapt its instruction
+patterns in AI Guild' own words. The project is licensed as follows:
+
+```
+MIT License
+
+Copyright (c) 2025 AgentLand Contributors
+
+Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated documentation files (the "Software"), to deal
+in the Software without restriction, including without limitation the rights
+to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+copies of the Software, and to permit persons to whom the Software is
+furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in all
+copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+SOFTWARE.
+```
+
+---
+
+## Guided tour — driver.js (MIT License)
+
+The guided tour (Help → Take a tour; src/renderer/src/lib/tour.ts) uses **driver.js**
+(https://driverjs.com, https://github.com/kamranahmedse/driver.js) by Kamran Ahmed, bundled
+as an npm dependency. It is used under the following license:
+
+```
+The MIT License
+
+Copyright (c) Kamran Ahmed
+
+Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated documentation files (the "Software"), to deal
+in the Software without restriction, including without limitation the rights
+to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+copies of the Software, and to permit persons to whom the Software is
+furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in
+all copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+THE SOFTWARE.
+```
+
+---
+
+## Other open-source components
+
+AI Guild is built with Electron, React, PixiJS, xterm.js, node-pty, better-sqlite3 and
+other open-source packages. Each is distributed under its own license (MIT, Apache-2.0,
+BSD or similar), included with the package in the application bundle.

@@ -1,0 +1,109 @@
+# Connectors (MCP servers) — user & maintainer guide
+
+Connectors let agents on your floor work inside other apps.
+
+**Where users turn them on:** Settings → **Connections** → *Default MCP servers*.
+**Where they're defined:** `src/shared/mcpCatalog.ts`.
+
+## Available connectors
+
+| Connector | What agents can do | Key you paste | Where to get it |
+|---|---|---|---|
+| **Pancake POS** | Read and change your shop: orders, products, stock, sales | Pancake POS API key | [docs.pancake.biz — POS MCP setup](https://docs.pancake.biz/pos/st-f14/st-p2?lang=en) (account API key recommended) |
+| **Fireflies.ai** | Read meeting notes: transcripts, summaries, action items. Can also rename, share or move meetings | Fireflies API key | Fireflies → Settings → Developer Settings ([MCP setup](https://docs.fireflies.ai/getting-started/mcp-configuration)) |
+| **Systeme.io** | Read and change contacts, tags, newsletters, campaigns, funnels, products, courses and automations | systeme.io MCP key (not the public API key) | systeme.io → Settings → MCP & API keys → MCP keys ([docs](https://developer.systeme.io/docs/mcp-server)); keys last up to 90 days |
+| **GoHighLevel** | Read and change a sub-account: contacts, conversations, opportunities, calendars, payments, within the token's scopes | HighLevel Private Integration token (`pit-…`); the sub-account's Location ID is an optional plain field | Sub-account → Settings → Private Integrations ([MCP docs](https://marketplace.gohighlevel.com/docs/other/mcp)) |
+| **Meta Ads** | Read and change Facebook and Instagram ad accounts: campaigns, ad sets, ads, audiences, insights. Can create, pause and launch ads that spend money | Meta user access token with `ads_mcp_management` plus `ads_read` (or `ads_management` to make changes) | [Graph API Explorer](https://developers.facebook.com/tools/explorer/); tokens expire |
+| **Metricool** | Read social analytics for your brands and competitors; read or schedule posts in the planner | Metricool API key (needs a plan with API access) | Metricool → Account Settings → API ([MCP docs](https://help.metricool.com/en/article/how-to-connect-metricools-mcp-1364s63/)) |
+| **Webcake Landing** | Design, edit and publish landing pages in your Webcake account | Webcake token | Webcake → Settings → Access code → Generate API keys ([guide](https://docs.pancake.biz/landing/st-f7/st-p3?lang=en)) |
+| **Obsidian** | Save notes, learnings and decisions (frontmatter, tags, [[links]]), append to today's daily note, search and read notes | No key: you pick the vault folder | Any folder; ideally one Obsidian has opened as a vault |
+| **Discord** | Post messages to channels, read recent messages, list servers and channels | Discord bot token | [Discord Developer Portal](https://discord.com/developers/applications) → your app → Bot → Reset Token |
+| **Agent Browser** | Drive a real headless Chrome: open pages, snapshot them as text, click, fill forms, screenshot ([agent-browser](https://github.com/vercel-labs/agent-browser) by Vercel, Apache-2.0) | No key; on by default | Nothing to get; Chrome for Testing downloads itself on first use |
+| GitHub, Database, Email & Calendar, Web Search | See the descriptions in Settings | The token or connection string named in the field | The "how to get it" link in Settings |
+
+Safe read-only servers need no key. Sequential Thinking and Context7 are on by default. Filesystem, Git, Fetch and Time are off by default: Claude Code already has file, shell and web-fetch tools, and every agent runs its own copy of each server that is on, so each one costs memory per agent. Switch any of them on in Settings → Connections if you want it.
+
+The npm-based defaults (Sequential Thinking, Context7, Agent Browser) are pinned to exact versions in `src/shared/mcpCatalog.ts` (`npm` field). About 15 seconds after launch AI Guild installs them once into `<userData>/mcp-packages` (`src/main/mcpPackages.ts`), and agents then run them straight from there (Agent Browser as its native binary) instead of through `npx -y`, which cost a `cmd.exe` shim and an npm process per server per agent. Until that install finishes, or when npm is missing, agents fall back to `npx` with the same pinned version. To update a pin, change the version in both `spec.args` and `npm`; the next launch installs it.
+
+## Using a connector
+
+1. Open Settings → Connections.
+2. Paste the key and press **Save**. It's stored encrypted and never shown again.
+3. Switch the connector **On**.
+4. **Start a new agent.** Running agents keep the connectors they started with.
+
+If a connector is on but has no key, the agent starts without it and Settings says so.
+
+### Your own MCP servers
+
+Settings → Connections → **Your own MCP servers** adds any server:
+
+- **Remote URL:** https, or http on this computer only. The key is a bearer token, a named header, or none. With a key, the server goes through the local proxy like the built-in hosted connectors; without one, the agent calls the URL directly.
+- **Local command:** a program and its arguments, one per line, plus an optional environment variable that receives the key. It runs with your permissions, so only add programs you trust.
+
+Each one starts switched off. After adding it, save its key in its row and switch it on. Up to 20; removing one also deletes its key. Saved in `config.customMcpServers` and re-checked on every read (`sanitizeCustomMcp` in `src/shared/mcpCatalog.ts`).
+
+### Obsidian
+
+Settings → Connections → Obsidian → **choose folder**, switch it **On**, start a new agent. The agent gets four tools:
+
+| Tool | Does |
+|---|---|
+| `save_note` | Writes `AI Guild/<Title>.md` (folder configurable) with YAML frontmatter (`title`, `kind`: note / learning / decision / topic, `tags`, `created`, `source: aiguild`), a heading, the body and a `Related: [[…]]` line. Saving to an existing title **appends** an `## Update <date>` section. |
+| `append_daily` | Adds `- HH:MM text #tags` to `Daily/YYYY-MM-DD.md`, creating it with frontmatter if needed. |
+| `read_note` | Reads a note by vault-relative path. |
+| `search_notes` | Text and/or tag search (nested tags match their parent), newest first; no query lists recent notes. |
+
+Rules the server enforces (`test/obsidian-connector.test.cjs`): every path resolves inside the vault, symlinks and junctions included; dot-folders (`.obsidian`, `.trash`, `.git`) are never read or written; nothing is ever overwritten or deleted. Obsidian doesn't need to be running.
+
+**Optional: Obsidian Local REST API.** For things files can't do (open a note in Obsidian, run a command, use Obsidian's own search), install the community plugin [Local REST API](https://github.com/coddingtonbear/obsidian-local-rest-api), enable its non-encrypted HTTP server (port 27123), and add it under **Connected services** with the *Obsidian Local REST API* template. Workers reach it through the broker like any other REST integration. Obsidian must be open for it to answer.
+
+### Discord
+
+1. [discord.com/developers/applications](https://discord.com/developers/applications) → **New Application**.
+2. **Bot** → **Reset Token** → paste the token into Settings → Connections → Discord → **Save**.
+3. Same page: turn on **Message Content Intent** (needed to read channel messages).
+4. **OAuth2 → URL Generator**: scope `bot`; permissions *View Channels*, *Send Messages*, *Read Message History*. Open the link and add the bot to your server.
+5. Switch Discord **On** and start a new agent. Tools: `send_message` (splits past 2000 characters; optional `reply_to`), `read_messages`, `list_channels`. Posts set `allowed_mentions` to nothing, so an agent can't ping `@everyone`.
+
+**Discord as a trigger.** Triggers tab → **Discord**: paste channel ids (Developer Mode → right-click → Copy Channel ID) and switch on. Only allowed users can start work: the user ids listed under *Who can start work*, or, when that's empty, the bot application's owner (or its team members), looked up from `GET /oauth2/applications/@me` at start. Everyone else is ignored, since a server can be public and requests run autonomously. When an allowed user @-mentions the bot in one of those channels, the app replies "Received" and queues the request for Roy with instructions to post the result back through the Discord connector. The app polls the listed channels every 5 seconds over Discord's REST API with the same bot token: no public tunnel and no listening port. DMs aren't watched.
+
+### Agent Browser
+
+On by default (the owner's call), and two switches turn it off: the **feature switch** (Settings → General → Features → Agent Browser, `features.agentBrowser`, default `true`) and the connector's own toggle under the **Browser** tier in Connections (`defaultEnabled: true`). The browser tier is the only consent tier allowed to start on: `buildMcpServers` lets a non-safe entry run without an explicit `enabled: true` only when its `defaultEnabled` is true, and the catalog test keeps keyed entries from ever being default-on. While the feature switch is off the entry is filtered out of the catalog (`mcpCatalogFor`), so Settings does not show it, `buildMcpServers` never writes it, and the bundled `agent-browser` skill is left out of the agent's skills folder (`excludedSkillIds`); a stale copy from an earlier spawn is removed on the next start.
+
+The entry runs `npx -y agent-browser@0.43.0 mcp` (pinned, like Webcake) with `AGENT_BROWSER_SESSION=aiguild-<agent id>`, so every agent has its own daemon and browser. The MCP server's `core` profile exposes open, snapshot, click, fill, get url, screenshot and close; the skill tells the agent to run the CLI with the same session name for anything else. The npm package carries no browser: the first `open` on a machine fails until `agent-browser install` has downloaded Chrome for Testing into `~/.agent-browser/browsers`, which the skill tells the agent to do and report.
+
+Containment, plainly: `file://` is off (agent-browser's default) and MCP tool arguments cannot turn file, network or policy flags on. The loopback broker answers only requests carrying an agent's Bearer capability token, which a browser navigation never sends, so the browser adds no reach to it or to the hive hook socket beyond what the agent's shell already has. The skill also forbids `--cdp`, `--auto-connect`, `--profile` and `--state`, so the owner's own Chrome and its logins are never attached. Owners who want a hard site list can set `allowedDomains` in `~/.agent-browser/config.json`; the MCP server reads that file. Tests: `test/agent-browser.test.cjs`.
+
+## How keys are protected
+
+| Connector type | How the key reaches it |
+|---|---|
+| **Hosted by the vendor** (Pancake POS, Metricool and the others) | The agent never receives the key. It talks to a local proxy (`127.0.0.1`) using a per-agent token. The proxy adds the key on the way out, only to that connector's own MCP endpoint, and the token dies with the agent. |
+| **Bundled, calling a vendor API** (Discord) | Same as above: the bundled server only gets the proxy URL and the per-agent token; the proxy adds `Authorization: Bot <token>` on the way to `discord.com/api/v10` and can't be pointed anywhere else. |
+| **Bundled, no key** (Obsidian) | Nothing to protect: the server only gets the vault path. |
+| **Runs on your computer** (Webcake, GitHub and others) | The key goes into that agent's `mcp.json` in `hive-internal`, as the server's environment variable. Claude agents are blocked from reading that folder, but on Windows there is no sandbox, so an agent's shell could still read it: only enable these connectors for agents you trust with that account. |
+
+Keys never leave the app's main process except to the connector itself. Without an OS keychain (some Linux setups), keys can't be saved at all; the app refuses rather than storing them in plain text.
+
+## Limits (plainly)
+
+- **Claude Code agents only, for now.** Connectors are attached through Claude Code's `--mcp-config`. Codex and other engines don't receive them yet.
+- **Connectors can change real data.** Pancake POS can edit your shop, and Webcake can publish pages. Webcake runs a test ("dry run") by default before saving; Pancake POS acts within your key's permissions. Prefer a key with the least access you need.
+- **The Webcake server is published on npm by one developer.** It's the one Webcake's docs point to. The version is **pinned** (`webcake-landing-mcp@1.5.2`); updating it is a reviewed code change, never automatic.
+
+## Adding a new connector (maintainers)
+
+Add an entry to `MCP_CATALOG` in `src/shared/mcpCatalog.ts`:
+
+- **Vendor-hosted:** `spec: { transport: 'http', url: 'https://…' }` and `secret: { kind: 'header', name: '<Header-Name>', … }`. The broker proxies it automatically.
+- **Local server:** `spec: { command, args }` with a **pinned** package version, and `secret: { kind: 'env', name: '<ENV_VAR>', … }`.
+- **Bundled (ships with the app):** a dependency-free `resources/md-<name>-mcp.cjs` built on `resources/md-mcp-stdio.cjs`, listed in `electron-builder.yml` `extraResources`. Spec: `command: '<node>'`, `args: ['<resources>/md-<name>-mcp.cjs']`, `env: { ELECTRON_RUN_AS_NODE: '1' }`. `<name>` placeholders are filled at spawn from `mcpVars` in `src/main/index.ts`; an entry with an unfilled one is skipped (`not_configured`). To call a vendor REST API without seeing the key, add `upstream: { url, authType }` and a `secret` of kind `header`: the server gets `MD_UPSTREAM_URL` + `MD_UPSTREAM_TOKEN` and the broker injects the key.
+- **Plain, non-secret values** a vendor needs (HighLevel's `locationId`): an optional `headers: { Name: '<var-name>' }` on an http spec plus `vars: [{ name, label }]` on the entry. The user types the value in Settings → Connections (`config.mcpVars`); a header whose value is missing is left out, so only optional headers belong there. The broker forwards it untouched and never lets it shadow the key.
+- **Every keyed connector:** `tier: 'secret'`, `defaultEnabled: false`, and an https `helpUrl`. `test/mcp-connectors.test.cjs` enforces these rules.
+- **Setup steps** for the Settings "How to set up" link: an array at `mcpDefaults.setup.<id>` in all three locale files.
+
+## On hold
+
+**Meta's platform MCP servers** (WhatsApp Business Tools, Devtools) need an OAuth sign-in flow.

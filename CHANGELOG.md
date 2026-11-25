@@ -1,0 +1,388 @@
+# Changelog
+
+All notable changes to AI Guild (formerly Jepoy Floor AI). App versions rise before each source push; published releases use `npm run release:<patch|minor|major>` (see RELEASE.md).
+
+## Unreleased
+
+## v4.8.4 — 2026-11-25
+
+### New
+
+- **Any OpenRouter model per agent, free or paid.** Add Agent (OpenCode, Crush, Pi) lists OpenRouter's tool-capable models with a Free / Paid switch, search and the price per million input tokens.
+- **Connectors: Metricool and Meta Ads.** Metricool reads social analytics and reads or schedules posts; Meta Ads works with Facebook and Instagram ad accounts and can launch ads that spend money. Both are off by default, and keys go through AI Guild so agents never see them.
+- **Add your own MCP servers** in Settings → Connections: a remote URL (bearer token, header key or no key) or a local command. Each starts switched off.
+- **Context handoff** (Triggers → Context → Compact → Method): instead of `/compact`, the agent writes a handoff to its `memory.md`, its session is cleared, and it reads the handoff back. The clear only happens once the handoff is saved.
+- **Office themes can build whole scenes**: trees, flowers, water, paths, fences, birds and more; the ground, walls, sky and light; and the standard rooms can be hidden.
+- Each agent card in Command Center shows its prompt-cache hit rate, in red when it is low.
+- Roy gets the live agent list only when something he routes on changes, on a new session or every 15 minutes, instead of with every message.
+
+### Changed
+
+- **Slack has an allowed-users list** (Settings → Connections → Slack). Only those people can give agents work. **If you use Slack, add your member ID or the bot stops responding.**
+- A worker spawn request only accepts `--model`, `--max-turns`, `--output-format`, `--verbose`, `--permission-mode` and the engine's own auto-mode flags.
+- Deliveries open in their default app only for formats without macros; old Office files, `rtf` and ODF open in their folder.
+- The quit warning counts only agents that are working.
+- Removed the organisation trigger settings: nothing ever read its key.
+
+### Security
+
+- Agents can no longer read each other's connector keys: `mcp.json` and `settings.json` moved to `hive-internal`, which Claude agents are blocked from reading.
+- Agents can no longer pose as Roy or hijack closing time through `registry.json`, plant a session id that reaches a command line, or add hooks or servers through a spawn request.
+- Agents can't switch off spending limits with negative cost reports, crash the app by flooding the key broker, or reach a connector vendor's API outside its MCP endpoint.
+- Codex logins only copy from you to the worker; Codex hook settings moved out of agents' reach.
+- Voice: a confirm counts only when your microphone hears it, only your latest words count, "no, don't confirm" never confirms, and your original request can't confirm itself. Voice hires can't pick the program to run.
+- Planted links, pipes and `..` names can no longer make the app write outside the hive, freeze it or export other files (memory indexer, deliveries, the editor's save).
+- On Windows, `git` and `gh` always run from their installed path, never from an agent's folder.
+- Webhook junk from outsiders can't block real webhooks; the Meta Ads report skill escapes `<`.
+
+### Fixed
+
+- Memory condensing no longer erases notes written while it runs, keeps pinned text as written, and keeps its backups in `hive-internal`.
+- The built-in editor refuses to save over a file an agent changed after you opened it.
+- Costs: lifetime totals no longer count a session twice after `/clear`; idle agents stop adding cost rows; one agent can't push its spend onto another; one huge transcript line no longer stalls tracking.
+- A full browser storage no longer loses or replays queued messages; a queued message is capped at about 100 KB.
+- Your compaction threshold is respected (an old 60% default no longer fires too).
+- Codex logins on Windows without Developer Mode stay in sync.
+- Folder names show correctly on Windows in Add Agent and floor spawns.
+- Other fixes: attached files no longer carry over to the next agent; cancelling voice while it connects no longer opens the mic; the "no progress" check resets after idle time; Reset everything stops agent proxy processes on Windows; the Git panel no longer shows a fake file after a rename; a broken `~/.gemini` hooks file is left alone; text fields in Settings → Connections are readable in dark mode.
+
+### Performance
+
+- The message log is no longer committed to the hive's git repo every few seconds (it could grow the repo to gigabytes and freeze the app); git timeouts pause commits instead of retrying.
+- Cost tracking reads only the session's own transcript, in slices; hooks, routing and the Deliveries badge no longer re-read files on every event; long-running floors stop accumulating memory; the message queue makes far fewer calls while delivery is held.
+
+## v4.8.3 — 2026-11-25
+
+- **Codex workers stay signed in on Windows without Developer Mode.** There, each worker got a copy of the Codex login, and once any copy refreshed, the others held a revoked token ("refresh token was revoked"). Each spawn now folds a newer same-account copy back into your login and re-syncs the worker from it. A copy for another account never overwrites yours.
+
+## v4.8.2 — 2026-11-23
+
+- **Security: Gemini, OpenCode and Pi hook files moved out of the shared hive.** Any agent could rewrite them and run code outside its sandbox the next time that agent started. They now live in `hive-internal/agents/<id>`, which only the app can write.
+- **Fixed: the Windows Node installer stopped right after the download.** A `cmd.exe` quirk swallowed every later step, and a checksum mismatch printed a message instead of stopping. Each check is now its own step, and the temp path is quoted for user names with spaces.
+- **Fixed: workers were stopped because of Roy's spending.** The biggest spender is now picked across everyone; if it's Roy, no worker is stopped.
+- **Fixed: a damaged `registry.json` made agents impossible to fire.** Firing now stops the agent first and saves second, and shows the file's path and error if the save fails. A failed hive setup at spawn now shows a notification.
+- **Security: spawn requests can't name a program by full path,** so a planted `claude.cmd` is refused. Your own default command (for example `ccr code`) works again.
+- **Fixed:** Slack replies work after a restart (known threads are saved, kept 30 days); Discord's default allowlist skips people with a pending invite; the onboarding Finish button shows save errors; the first-run event survives quitting during onboarding; Gemini voice counts usage when you interrupt Roy; a malformed Node version from nodejs.org is refused.
+- **Faster:** typing in Command Center no longer redraws every agent card, and the office skips redraws that change nothing.
+- **Removed** about 1,360 lines of unused code: the old 2D maps and map tools, `installSkill`, `realtimeCost.ts`, and two unused helpers.
+
+## v4.8.1 — 2026-11-22
+
+- **Security: closed a gap in the connector key check.** v4.8.0 sealed each key to its address, but checked it by reading `config.json` a second time. An agent that swapped the address back and forth between the two reads could still get the key sent to its own server. The key is now checked against the exact address the request goes to. For contributors: `getSecret(ref, sendOrigin)` in `src/main/integrations.ts`; the broker and `integrations:test` pass the upstream URL's origin (test in `test/main-audit-fixes.test.cjs`).
+
+## v4.8.0 — 2026-11-22
+
+- **Fixed: a damaged task list or agent list is no longer wiped.** If `tasks.json` or `registry.json` had a typo (for example after a hand edit) or grew past 4 MB, the next save quietly replaced it with an almost empty file. Now the app refuses to save over a file it can't read, logs it, and leaves your data as it was.
+- **Fixed: costs and token limits counted each Claude reply two to three times.** When live usage wasn't available, the app added up every line of the transcript, and Claude Code writes several lines per reply. Each reply now counts once, so costs are right and agents are no longer stopped early by their token caps.
+- **Security: a connector's key can only go to the address it was saved for.** An agent that edited `config.json` could point a connection at its own server and receive your real key. Keys are now sealed together with their address; if the address changes, the key is not sent and Settings → Connections asks you to save it again. Keys saved before this version are sealed to their current address when the app starts.
+- **Security: tighter checks between agents.**
+  - Roy's worker spawn requests are now signed like fire requests, and may only start a known agent program (no shells or scripts).
+  - The usage collector only accepts reports an agent makes about itself, so one agent can't push another into a stop.
+  - Agents can only reply in Slack threads that came in from Slack.
+  - On Windows, "Open terminal here" always runs the real `cmd.exe`, never one placed in the folder.
+- **Fixed: Roy kept repeating the floor activity in voice chat.** Every short pause in an agent's output was reported as "went quiet" and then "started producing output", so Roy heard (and re-read) the same news every few seconds. Now an agent is mentioned only after a full minute of silence following work, once per stretch, and the same sentence is never sent twice within five minutes. On Google Gemini Live, floor updates also cut Roy off mid-sentence so he started over; they now wait until he finishes speaking.
+- **Voice: deleting a task now asks first.** Roy reads back the exact task and waits for "confirm" or "delete"; a plain "yes" is not enough.
+- **Voice: the spend limit now works with Google Gemini Live.** Gemini usage is counted in the voice cost meter. The Gemini price is an estimate until Google lists the model.
+- **Budgets:** a worker's token cap no longer counts cached context (matching the per-agent cap), and Roy's own tokens now count toward the floor budget (he is never the one stopped).
+- **Fixed:** a message to several agents is no longer lost for everyone after one failed delivery; "Reset floor" now also removes Codex session data; on Windows, agents fired just before quitting no longer keep running; firing an agent saves the decision before stopping it.
+- **Privacy:** on a first launch, anonymous usage events wait until onboarding is finished, so unticking sharing there means nothing is sent.
+- **Faster office:** the 3D office no longer re-draws on every status update from any agent, ping-pong stays within the 30 fps cap, and about 470 lines of unused 3D code are gone.
+- For contributors: `readJsonStrict` in `src/main/hive.ts` (test `test/hive-json-corrupt.test.cjs`); origin-bound secrets and `bindLegacySecrets` in `src/main/integrations.ts` (test `test/main-audit-fixes.test.cjs`); `spawnSignature`/`verifySpawnRequest` in `src/main/fireAuth.ts` and the `cth-spawn` helper; `isAllowedWorkerBin` in `src/main/workerLaunch.ts`; `BreakerInput.exempt` in `src/main/breaker.ts`; Gemini pricing in `src/shared/realtimePricing.ts` (test `test/realtime-pricing.test.cjs`); shared `fireAgent` in `src/renderer/src/components/fireAgent.ts`. Windows code signing is wired in the release workflow (secrets `WIN_CSC_LINK`, `WIN_CSC_KEY_PASSWORD`; see RELEASE.md) but stays off until a certificate is added.
+
+## v4.7.0 — 2026-11-15
+
+- **Fixed: Roy can fire agents, and fired agents leave the floor.** Asking Roy to fire someone used to do nothing visible: he had no fire command, so he could only edit the hive's own list, and the floor kept every card. Roy now has a fire queue that does exactly what the Fire button does (stops the terminal, archives the agent, moves the card to Archived, undoable from there). Agents marked fired some other way are moved off the floor on their own, and Restore Team or a restart no longer brings a fired agent back.
+- **Many agents at once are much lighter on your computer.** Measured on a 16-core Windows PC with Roy plus 10 Claude agents: memory went from **17.0 GB to 11.6 GB**, processes from **374 to 147**, and idle CPU from **12.5% to 4.3%** of the whole machine (while all 10 work: 22% → 16%). Each agent now runs about 13 processes instead of 32. What changed:
+  - **Files, Git, Time and Fetch connections are off by default.** Claude Code already has these tools built in, and every agent ran its own copy of each server (a Python server plus its launcher, four times over). They are switched off once on existing installs too; switch any back on in Settings → Connections.
+  - **The remaining default connections run straight from disk.** Sequential Thinking, Context7 and Agent Browser are now pinned to exact versions and installed once into AI Guild' own folder (about 80 MB) shortly after launch, instead of going through `npx` for every agent, which added two extra processes per connection. Agent Browser runs as its native program. Until that install finishes, or without npm, agents use `npx` as before.
+  - **The office draws walking agents at 30 frames a second** instead of at the screen's full refresh rate. The renderer and graphics processes went from about 11% to 3% of the machine with 10 agents on the floor; moving the camera stays smooth.
+- **Firing agents no longer freezes the app.** Firing 10 agents used to stop the app for 6.5 seconds while it killed them one after another; now it takes 0.3 seconds, with a few kills running side by side. On Windows the whole process tree (the agent's command-line tool, its connections, any browser it opened) is stopped first, while it can still be found, and on macOS/Linux processes that left the agent's group (a browser) are swept too. Zero processes were left behind in both measurements.
+- **Fixed: firing a hired agent through Roy or voice left it running.** The fire archived the card but looked the terminal up by the wrong id, so the agent's command-line tool and all its connections kept running in the background.
+- **New: Settings → General → Resource use.** Shows how much CPU and memory AI Guild and its agents use right now, and per agent its process count, memory and CPU. It updates every 5 seconds while open and costs nothing when closed.
+- For contributors: `killTreeAsync` / `killPtyTree` / `descendantsOf` in `src/main/procKill.ts` (test `test/tree-kill.test.cjs`); `npm` pins and the `localPackage` hook in `src/shared/mcpCatalog.ts`, installer in `src/main/mcpPackages.ts`, `leanMcpV1` migration in `src/main/config.ts` (test `test/lean-mcp.test.cjs`); `perf:usage` IPC with `src/shared/resourceUsage.ts` (test `test/resource-usage.test.cjs`).
+- **Security: agents no longer get your AI provider keys.** The Anthropic, OpenAI, Gemini, OpenRouter and Groq keys saved in Settings → AI Engines used to be put straight into the environment of OpenCode, Crush, Pi and Qwen agents, where an agent could read or print them. Now each agent gets a per-agent token in place of every key, and its base URL points at the app's local key proxy (127.0.0.1 only), which checks the token, adds the real key in the provider's own header style (`Authorization: Bearer`, `x-api-key`, `x-goog-api-key`) and forwards only to that provider's official host, streaming answers through as they arrive. The token is revoked when the agent stops. Per engine: OpenCode through its `provider.<id>.options.baseURL` config, Crush through `providers.<id>.base_url` in its per-agent config, Pi through `providers.<id>.baseUrl` in its per-agent `models.json`, Qwen through its sidecar's upstream. **One pair stays on the old path:** Crush ignores a base URL for OpenRouter, so Crush agents still receive the real OpenRouter key, and Settings → AI Engines says so under that key. Also: Qwen and Crush no longer write a custom local base URL into the app's own environment (it leaked into every later agent), and with a local base URL set Qwen gets the token, not your OpenAI key. For contributors: `src/shared/byokBroker.ts` (routes, `BYOK_DIRECT_KEY`), `isModelRoute` in `src/main/integrationBroker.ts` (32 MB bodies, first-byte timeout), tests in `test/byok-broker.test.cjs`.
+- **New: talk to Roy through Google Gemini Live.** Voice chat with Roy can now run on Google's Gemini Live API (`gemini-3.8-live`) as well as OpenAI Realtime. Get a key at [Google AI Studio](https://aistudio.google.com/app/api-keys), paste it in **Settings → Voice → Google AI Studio API key · voice** (or under Agents & Models; it is the same Google key), and **Talk** works with Google. Once a Google key is saved Google is used by default; the **Voice provider** picker switches back to OpenAI any time, and the OpenAI path is unchanged. Roy has the same tools, the same confirm-before-destructive rule and the same floor updates on either provider, and you can talk over him (he stops right away). The key stays encrypted on your computer: each call mints a single-use token in the main process, and only that token reaches the app window. A missing or rejected key, or a used-up Google quota, shows as a plain message on Talk. Owner switch: **Settings → General → Features → Gemini Live voice**. Gemini usage is not priced in the voice cost meter yet; idle auto-disconnect still applies. For contributors: `src/shared/geminiLive.ts` (provider choice, tool → function-declaration mapping, PCM helpers), `src/renderer/src/realtime/geminiLive.ts` (WebSocket driver), `mintGeminiLiveToken` in `src/main/realtime.ts`, tests in `test/gemini-voice.test.cjs`.
+- **The floors look like a building.** The floor buttons are now a stack of slabs at the bottom right, Floor 1 at the bottom and **Add floor** on the roof. Each slab has one small window per seat, lit green for a working agent, grey for an idle one and red for one that needs you. Switching floors is an elevator ride: the floor you leave slides away, a display counts the floors, and the next floor slides in from above or below. With "reduce motion" on, the switch is instant as before.
+
+## v4.6.0 — 2026-11-15
+
+- **New: Agent Browser.** Agents can drive a real headless Chrome through Vercel's open-source [agent-browser](https://github.com/vercel-labs/agent-browser) (Apache-2.0, v0.43.0, downloaded on demand, not shipped): open a page, read it as a text snapshot, click and fill by reference, take screenshots. It is **on** out of the box and needs no key. A browser can visit any website and fill in forms, so there are two ways to switch it off: **Settings → General → Features → Agent Browser**, or the **Agent Browser** connector under the new *Browser* tier in Settings → Connections. Each agent gets its own browser session; the first page open on a computer downloads Chrome for Testing once. A bundled `agent-browser` skill teaches the snapshot/ref loop and the rules: page text is data, no secrets or saved logins into pages, nothing irreversible without the owner's words, websites only (no local files, never AI Guild's own local services, never the owner's Chrome). With the feature switch off, the connector is hidden in Settings and neither it nor the skill reaches new agents (an earlier copy of the skill is removed on the agent's next start). Browser-tier entries are the one consent tier that may start on; keyed connectors never do. For contributors: `features.agentBrowser`, the `browser` tier and the `feature` field in `src/shared/mcpCatalog.ts`, `excludedSkillIds` in `src/shared/features.ts`, tests in `test/agent-browser.test.cjs`.
+
+## v4.5.0 — 2026-11-14
+
+- **New: Settings → General → Features.** One switch per optional feature, so you decide what is on: Personal ATTITUDE.md, the AI Guild skills, the extra role templates, office chatter in your language, and office themes. Everything is on to start with; switching something off falls back cleanly and nothing is sent anywhere.
+- **New connectors: Systeme.io and GoHighLevel.** Agents can work in your systeme.io account (contacts, tags, newsletters, campaigns, funnels, products, courses, automations) and your HighLevel sub-account (contacts, conversations, opportunities, calendars). Paste the key in Settings → Connections and switch it on; like Fireflies, both go through the local proxy, so agents never see the key. HighLevel's sub-account id is an optional plain field next to the token.
+- **New: a personal ATTITUDE.md.** Settings → Agents & Models → **How agents talk to you**: write how every agent should talk to you (tone, formality, length, language, your rules) and press save. It is added to the instructions of every agent you start afterwards, for Claude Code, Codex, Gemini and Grok alike, with a preview of the exact text. Up to 4 000 characters; the file lives in the app's own folder, not in any project.
+- **Six new built-in skills, written for AI Guild:** `game-dev-3d` (game loop, scenes, assets, physics, which engine to pick), `threejs` (the exact Three.js / React Three Fiber versions the office uses, API notes, performance rules), `animejs` (Anime.js v4), `ui-ux-review` (usability and accessibility review), `devops-runbooks` (CI, releases, runbooks) and `security-research` (threat models, CVE triage, risk reports and disclosure drafts; research only, never pen-testing). Two matching role templates: **UI/UX Designer** and **Security Researcher**.
+- **Office chatter in your language.** The cafeteria small talk and two-agent exchanges used to be fixed Taglish; they now follow the language picker (English keeps the Taglish lines, with Chinese and Arabic versions), like the gossip and cheers already did. The jukebox, standup board, ATM and voice-reply panel are translated too. A switch keeps the original lines if you prefer them.
+- **New: office themes.** The **theme** button on the floor bar saves this floor's layout (every object, its place, turn and tint, plus who sits where) as one `.office-theme.json` file, loads one someone shared, or copies a prompt with the JSON schema so any AI can design a layout for you. Imports are checked against a strict schema (known objects only, no code, no file paths, size caps), shown as a before/after summary first, and the previous layout is backed up: **undo import** brings it back.
+- **The 3D office is lighter on your machine and nicer to look at.** It no longer redraws 60 times a second when nothing is happening: frames are drawn when an agent walks, the camera moves or something changes, and a few times a second otherwise. Static furniture (plants, couches, lamps, cabinets, the desk monitors, the capiz windows) is drawn in batches instead of piece by piece, and shadows are only recomputed when something that casts them moves. The result is roughly a quarter of the draw work per frame and a renderer that sits near idle when everyone is at their desk.
+- **Smooth zoom and pan.** The mouse wheel or a trackpad pinch now eases the view in and out, from the whole floor down to a single desk, and keeps the spot under your cursor in place while it does. Drag to pan (the view stays over the office), double-click or press Home to glide back to the whole floor. The camera presets (front desk, lounge, machines) work as before.
+- **Clearer highlights and lighting.** Hovering an agent or a desk, or opening an agent's panel, puts a lime ring (orange for the open agent) on the floor under them that stays the same size at any zoom. The office gets a softer key light with a warm fill, and the base floor slabs use the AI Guild dark greens instead of blue-grey.
+- **Agents look like their cards now.** The figure on the office floor used to be dressed from a random mix of colours, so Kazuma's card showed brown hair and a blue shirt while his figure wore a beanie and glasses. Every agent without a saved avatar now takes skin, hair, outfit and glasses from its portrait, and the avatar editor's **Reset** returns to that look instead of a random one. Three new hair styles (long, curly, bald) cover the whole cast.
+- **Sharper faces and colours.** The 3D head has a small pixel-art face (brow light, jaw shadow, nose, cheeks) drawn crisp with no blurring; jackets take their colour from the top instead of a fixed blue; portrait shading leans warm in the light and cool in the shade instead of a flat tint, so no colour goes chalky or grey.
+- **Portraits:** every card and detail-panel portrait sits in the same frame with a soft backdrop in the agent's accent colour, and renders at 2x/3x on HiDPI screens.
+- **A status badge over every head.** A small pill above each agent on the floor says **working**, **waiting** (at the desk, ready for a prompt), **idle** (wandered off) or **error**, in the same colours as the nameplate dot. It keeps the same size on screen at every camera zoom, so it stays readable zoomed all the way out. Agents also tap at the keyboard while they work at a desk, and the nameplate dot is a bit bigger.
+- **For contributors:** colour ramps live in `src/renderer/src/lib/avatars/palette.ts` and the badge mapping in `statusBadge.ts` next to it (tested in `test/avatar-palette.test.cjs` and `test/avatar-status-badge.test.cjs`); the hair and face meshes shared by the floor and the editor live in `features/office/avatar/figureParts.tsx`; the unused 18×32 walking-sprite composer was removed from `portraitArt.ts`.
+- **268 agency personas under Add agent → templates → Agency.** The whole [agency-agents](https://github.com/msitarzewski/agency-agents) roster (MIT) ships with the app, grouped by its 18 divisions (Engineering, Design, Marketing, Sales, Finance, Security, Testing, Project Management, Healthcare, GIS and more) with a search box. Pick one and its persona becomes the agent's standing goal, with a matching face and colour; every field is shown for review and nothing spawns until you press spawn, same as a role template. The persona's code templates are left out of the goal (engines without hooks send the goal with every message) and the verbatim files stay under `resources/agency-agents`. A hire's goal may now be up to 32,000 characters so floors with such agents export and import again. For contributors: `node tools/sync-agency-agents.cjs` re-vendors the roster at the commit pinned in `tools/agency-agents.json`, checking every file against its git blob hash.
+- **Guided tour.** Help → **Take a tour** walks through the floor, the terminal and command bar, the team strip, hiring, Settings, the theme and focus buttons, and where to find help, in English, Arabic and Chinese. It also runs once by itself after the setup wizard. Built on [driver.js](https://driverjs.com) (MIT).
+- **Seven new role templates for freelancers.** Add agent → templates now also offers a **Client Relations Manager** (qualifies leads into a one-page brief, drafts check-ins), **Proposal & Quote Writer** (one-page proposal, three-option quote with the math shown), **Contract Reviewer** (key terms, risky and missing clauses, what to negotiate; not legal advice), **Invoicing & Collections Assistant** (work log → time entries and invoice drafts, reminder sequence; never sends or moves money), **Portfolio & Case Study Writer** (case studies and posts from finished work, with the client's OK), and on the Technical tab a **Scope Guardian** (checks requests against the agreed scope, drafts priced change requests) and a **Project Handover Specialist** (handover pack the client can run without you, no secrets). Every one drafts; a human sends, signs, prices and posts.
+- **Existing templates hand off better.** The Jr. and Sr. Programmer, Scrum Master and Operations Assistant now say what each hand-off contains (what changed, how to verify it, what was left out), keep "noticed but not done" work in a follow-ups list instead of the same change, open status reports with Green/Yellow/Red and the decisions you must make, and ask before touching anything a client agreed to in writing.
+- **Freelance prompts.** The prompt library has a **Freelance** category: qualify a lead, proposal with a three-option quote, review a contract, is this in scope, invoice from my work log, payment reminders, handover pack, case study, week in review. The new templates land in it automatically; a free-text role that mentions proposals, contracts, handover or a portfolio does too.
+- **A "Solo freelancer" team preset** (`COMPANY_PRESETS` in the company builder) assembles nine of the templates into a floor without an LLM call: client relations, proposal, contract review, scope guardian, Sr. Programmer, QA, handover, invoicing and portfolio. Not yet wired to a button in the company builder.
+- **Credits:** the freelancer templates adapt instruction patterns (explicit deliverables, "never" rules, value-before-price proposals, flagging what a contract leaves out) from [agency-agents](https://github.com/msitarzewski/agency-agents) by Michael Sitarzewski and contributors (MIT). No text is copied.
+- **For contributors:** colour ramps live in `src/renderer/src/lib/avatars/palette.ts` and the badge mapping in `statusBadge.ts` next to it (tested in `test/avatar-palette.test.cjs` and `test/avatar-status-badge.test.cjs`); the hair and face meshes shared by the floor and the editor live in `features/office/avatar/figureParts.tsx`; the unused 18×32 walking-sprite composer was removed from `portraitArt.ts`; the elevator display steps come from `elevatorStops` in `src/shared/officeLevels.ts` (tested in `test/office-levels.test.cjs`).
+
+## v4.4.2 — 2026-11-03
+
+- **New connector: Fireflies.ai.** Agents can read your Fireflies meeting notes (transcripts, summaries and action items) and work from them, for example turning a meeting's action items into tasks. Paste your Fireflies API key (Fireflies → Settings → Developer Settings) in Settings → Connections and switch it on. Like Pancake POS, it goes through the local proxy, so agents never see the key.
+- **New: Help → Credits,** also a button in Help → About. It names the developer, Jeffrey Cayao (jepoy.dev), and everyone whose work AI Guild uses: Munder Difflin, the brand colors by Vee Trimidal, the 3D office and pixel art, the fonts, Git, Git LFS and the GitHub CLI, the libraries, the bundled skills and the connectors. README and Third-Party Notices list them too.
+
+## v4.4.1 — 2026-11-02
+
+- **Security: your Slack, Groq, webhook and teammate keys are encrypted now.** They used to sit as plain text in `config.json`, which every agent can read. They now live in the same encrypted store as your connector keys, existing ones move there on first start, and the app window only ever sees a placeholder for the Slack and Groq keys (saving Settings without retyping keeps them).
+- **Fixed: a queued message could answer an approval prompt.** When an agent stopped at a "Do you want to proceed?" prompt, AI Guild could mark it idle a few seconds later and type the next queued message, whose Enter picked "Yes". A prompt on screen now always holds delivery. Switching between agents no longer marks the one you left idle mid-turn either.
+- **Fixed: a message could be resent every second and a half.** If AI Guild couldn't file a sent message away (a locked file, a missing folder), it delivered it again on every pass. Messages are now filed first and delivered once.
+- **The loop guard works.** It never counted, so two agents replying to each other could ping-pong forever. AI Guild now counts the messages in each conversation itself and stops a runaway thread after 40.
+- **Security: agents can't make AI Guild run their code or impersonate each other.** AI Guild' own git no longer runs commands a repo's config names (`core.fsmonitor`, external diff tools, filters and hooks; only the standard Git LFS filter still runs, so filters like git-crypt don't apply in the Git tab or new worktrees, and a repo whose own git config includes other config files is refused; git 2.31 or newer is needed), git signature checks and submodule work trees are skipped too, one agent can no longer send hook events in another agent's name or a stopped agent's (each agent gets a secret token, and an event without a valid one is refused), a file an agent swaps for a special file can no longer freeze the app, and on a Mac, clicking a path an agent printed only ever reveals it in Finder (an `.app` folder used to launch).
+- **Moving a floor to a new home folder stops the agents first,** so nothing they write during the copy is lost or copied half-written.
+- **Fewer, kinder nudges.** The app and its background watchdog each announced new mail on their own, so an agent could be told twice. Each message is now announced once, a nudge never lands on top of a prompt you're halfway through typing, and checking for mail reads file names instead of opening every message.
+- **Token and dollar caps survive a restart.** Restarting AI Guild used to reset what each agent had used, handing it a fresh budget. The caps now count the whole session from the cost ledger.
+- **Smaller fixes:** roster backups now span hours instead of minutes, work handed to a stopped agent tells Roy instead of vanishing, Roy no longer gets stuck on "booting" when his engine fails to start, GitHub issues load on a Mac app opened from the Dock, a muted radio stays muted after a restart, a station that drops its stream shows offline instead of "Live", pasted screenshots older than three days are cleaned up, and links to other apps' URL schemes are refused.
+
+- **New: Help → Feature Manual.** A detailed, offline manual of every AI Guild feature: what it is, why you'd use it, step-by-step how to turn it on, and where the switch lives. It opens with a table comparing AI Guild to running an AI tool on its own, and a table of what each AI tool (Claude Code, Codex, Gemini, Grok and more) gets inside AI Guild. Searchable, and linked from the How to use guide.
+- **See the difference, in 3D.** The Feature Manual opens with an animation: switch between **One AI tool** (you feed a lone session by hand) and **AI Guild** (you ask once, Roy hands tasks to twelve AI tools, agents message each other and save to shared memory, and finished files fly back to you), with live counters. It runs offline from the app, and is turned off when your system asks for reduced motion.
+- **New page on the website: maaramid.github.io/ai-guild/features**, with the same animation and the whole feature manual. **Features** in the site menu now goes there.
+- **Nicer scrollbars** in the help guide, the Feature Manual and the website: thin and rounded, in the office colours.
+- **Fixed:** the Help menu showed "Security  FAQ" with a gap on Windows. It now reads **Security and FAQ**.
+- **For contributors:** `node tools/sync-site-features.cjs` rebuilds `site/features.html` from `resources/help/features.html` (a test fails if they drift). The showcase scene lives in `tools/site-bundle/src/showcase3d.js`; `npm run build` there writes both the site scripts and the app's offline `resources/help/showcase.js`.
+- **Security: agents can no longer plant code that AI Guild itself runs.** Agents may write the shared hive folder, which used to hold the hook helpers their CLIs run and the hive's git history, so an agent could edit a helper or plant a git hook that AI Guild ran outside the sandbox on its next save. Both now live in a separate `hive-internal` folder next to the hive that agents cannot write, an existing hive's history moves there on first start, and AI Guild' own git saves ignore any git hooks.
+- **Three skills come built in.** Every Claude Code and Codex agent now starts with NVIDIA's **skill-inspector** (checks a skill is safe before you install it), the six **ponytail** skills (keep changes small) and Cloudflare's **security-audit**. No setup; they work offline and update with AI Guild.
+- **Bundled skills now really reach Claude Code agents.** They were copied into each agent's folder, but Claude Code only loads skills from a folder passed with `--add-dir`, so they never loaded. Codex agents now get them too, in their own isolated Codex home.
+- **Security: refreshing an agent's skills can no longer write outside its folder.** An agent could leave a link in its own skills folder so the next restart overwrote a file elsewhere on your computer. AI Guild now removes and rebuilds each bundled skill, and skips the copy when the folder leads through a link.
+- **Security: the same fix for every file AI Guild writes for an agent.** An agent could leave a link where AI Guild keeps its settings, MCP key file, inbox, outbox archive, provider config (Codex, Gemini, Pi, OpenCode, Crush), shared logs or helper scripts, so AI Guild would write, move or copy a key to a file elsewhere on your computer. AI Guild now removes such a link and writes a fresh file in a real folder instead.
+- **For contributors:** `node tools/sync-third-party-skills.cjs` re-downloads the pinned skills listed in `tools/third-party-skills.json` and checks every file against the pinned commit's git hash; `--update` moves each pin to the latest release, `--check` verifies the committed copies offline. Nothing downloaded is run. Review `git diff resources/skills` before committing.
+
+## v4.2.2 — 2026-10-31
+
+- **Activity bubbles are back.** A working agent's bubble shows what it's doing right now, the way the old 2D office did: `$ git push origin main` for a terminal command, `> App.tsx` when editing a file, `< SPEC.md` when reading, `?` for searches and `@` for the web. The bubble gently pulses while the agent works. It only shows animated dots when there's nothing concrete yet (thinking). The agent card shows the same line.
+- **New: the Kapihan, the office cafeteria.** Where the gym and QA lab used to stand there's now a cafeteria with Filipino machuca-style tiles and a neon KAPIHAN sign: a coffee bar (two coffee machines, microwave, two vending machines, water cooler), six round tables with 24 seats, and a lounge corner with a couch and beanbags. Free agents come here for coffee and chikahan.
+- **The gym and QA lab moved** to the empty space on the right side of the floor, gym on top and QA lab below, with their doors facing the Kapihan. Every piece of equipment and every QA station is still reachable. Your saved floors update by themselves: the two rooms move, and the Kapihan is added once if that area is empty (furniture you placed there yourself is kept, and a Kapihan you delete stays deleted).
+- **Smaller, readable bubbles.** Speech and activity bubbles are now crisp screen text (11px, up to 3 lines) instead of large 3D signs, so they stay sharp at any zoom and no longer cover the desks.
+- **Three monitors on every desk.** The agents are programmers and designers, so each desk computer is now a curved triple-monitor setup.
+- **Office radio that plays inside AI Guild.** The jukebox now opens on a **Radio** tab with about 400 live Philippine stations (Love Radio, Barangay LS, Yes FM, DZRH and more) from the free radio-browser.info directory. Search by name, city or genre, press Play, set the volume. No account or setup, and it keeps playing when you close the panel. Agents dance while it plays. The Spotify remote is still there on the **Spotify** tab.
+- **Mini radio player.** While the radio plays, a small player sits at the bottom of the office with the station name and previous, stop/play and next buttons. Stop fades it away; start a station from the jukebox to bring it back.
+- **Music doesn't stop the work.** While music plays, free agents take turns dancing and wandering the office. Agents with a task keep working: at their own desk if you gave them one, otherwise at the nearest free computer, which they give back when they're done.
+- **Code Review Room opens on This Repo.** You see the pull requests for the agent's own project first; **My Queue** is one click away. If the folder isn't on GitHub, it says so and points you to My Queue.
+- **No more "can not approve your own pull request" error.** On a pull request you opened yourself, the Code Review Room only offers **Comment** and explains why: GitHub doesn't let anyone approve or request changes on their own pull request.
+- **11 new chismis lines** in the office gossip, in English (Taglish), Chinese and Arabic.
+
+## v4.2.1 — 2026-11-01
+
+- **Built on Electron 45** (Chromium 156, Node 24), up from Electron 32, which stopped getting security fixes in March 2025. You get about 19 months of browser-engine security fixes.
+- **New minimum systems: macOS 13 Ventura or newer, and 64-bit Windows 10 or 11.** Electron 45 no longer runs on macOS 11 or 12. If your Mac is on one of those, keep AI Guild 4.1.3.
+- **Pasting a screenshot into a message still works.** Electron changed how the clipboard is read; AI Guild now reads images, and text pastes from dictation tools, the new way.
+- **Installs and releases no longer compile anything.** The terminal and database parts of AI Guild now use ready-made binaries that work with any Electron version, so `npm install` needs no C++ compiler on macOS or Windows, and the release build can't fail on a compiler mismatch again.
+- **For contributors:** `better-sqlite3` 13, `electron-builder` 26, `@electron/rebuild` removed; the release workflow's manual dry build now really builds the installers.
+
+## v4.1.3 — 2026-10-31
+
+- **Settings and connector keys are never reset by a bad file.** If `config.json` or the saved connector keys can't be read (a damaged file, or another program holding it), AI Guild copies it aside as `<name>.corrupt-<time>` and refuses to save over it, with a message saying what to fix. Before, the next save replaced it with defaults and lost the hive home, triggers, schedules and every other key.
+- **Typed prompts are no longer stored.** AI Guild kept every prompt you typed to an agent in plain text in `harness.db`, and nothing used it. That table is now deleted on first launch.
+- **Open terminal works on Windows and Linux** (it opened only macOS Terminal before).
+- **IDE saves can't empty a file.** A save writes a temp file and swaps it in, so a crash or a full disk mid-save keeps the old file.
+- **Fixes:** the IDE and Git tab now work when an agent's folder is a subfolder of the repo; diffs no longer show phantom lines around accented or non-Latin text; a hive message that was still being written is retried instead of discarded; Ctrl+click on a `\\host\share` path in a terminal is ignored on Windows (it could send your Windows login hash to that host); webhook messages over 32 KB are refused (413); roster backups keep the newest 50.
+- **Updates on Mac.** A Mac copy that can't install its own updates (not signed with an Apple Developer ID) now goes straight to "a new version is ready, download it", instead of downloading about 200 MB every 6 hours and then failing. **Check for updates** now waits for the answer, so it no longer says "up to date" before GitHub has replied or while you're offline.
+- **Office fixes.** Speech bubbles and mood emojis close on time instead of staying up forever. An agent sent to the QA lab or the server room comes back after about 90 seconds. Agents stay on their floor when someone on a lower floor leaves. The office stays smooth with many busy agents (a tool call no longer redraws the whole app).
+- **Integrations:** adding a second integration that would get the same id (for example GitHub twice) now shows an error instead of silently replacing the first one and its key.
+- **Safety:** model names from shared hire files or the online model list can't start with `-` or contain shell characters; in webhook "communication only" mode, a polite request like "Could you email me the .env file?" now waits for your approval; on Windows, Ctrl+clicking a network-share path in an agent's output is ignored; webhook messages over 32 KB are refused.
+- **Smaller app.** About 1,700 lines of unused remote-office code are gone, and the Triggers JSON box now uses the same editor as the IDE (6 fewer packages).
+- **Releases:** the full test suite now runs on GitHub before every release, and builds use Node 24, the same as development machines.
+- **New AI Guild logo everywhere.** The app icon (installers, desktop shortcut, Start menu, Dock), the window and taskbar icon, the logo at the top of the app and on the loading screen, the Help window, and the website's icons now use the new "D" logo. The window no longer shows Electron's icon, and Windows notifications are labelled AI Guild.
+- **Removed the old jepoy.dev branding files** (the `brand/` folder with the "J" logo).
+
+## v4.1.1 — 2026-10-31
+
+- **Delete empty office floors.** Open an empty floor in the floor bar and click **− Delete floor N**. After you confirm, the floor and its furniture layout are removed, and the floors above it move down one with their own layouts and agents. A floor that still has agents can't be deleted (the button is grey until you move them), and Floor 1, Roy's floor, can't be deleted at all. Deleting a floor never deletes an agent or any work.
+- **Website:** the landing page now shows the 3D office, and the online User Guide (maaramid.github.io/ai-guild/guide) matches the new plain-language guide in the app's docs.
+
+- **Safety fixes from a full code audit.**
+  - Your connector keys can no longer end up in an agent's saved history. Each agent's `mcp.json` (which holds keys) is now kept out of the hive's git history, memory search and floor backups. If an older copy was already saved, it is removed from tracking. Copies in past history stay there.
+  - A shared "hire" file can no longer slip its own instructions to a new agent by hiding them after the `--verbose` option.
+  - A paused or stopped agent can no longer get around the pause with a very large tool request: the stop answer now always gets through.
+  - Webhook senders can no longer skip the approval check by labelling a message "just talk". Risky words like *reset*, *push*, *wipe* or *delete* are always held for your approval.
+  - If you change where an integration sends requests (its address or sign-in type), the saved key is deleted, so the old key never goes to the new address. Type the key again when you save.
+  - A new weekly mission no longer runs the moment you save it. It waits for its first scheduled time.
+  - Website previews on office screens open in a locked-down frame and only accept normal web links.
+- **Steadier and faster.**
+  - The 3D office pauses drawing while a full-screen terminal or the editor covers it. This saves power and keeps typing smooth.
+  - Terminal history keeps the last 10,000 lines per agent, so a busy agent's memory use doesn't grow forever. A removed agent's terminal is cleaned up too.
+  - Settings, keys and agent lists are saved in a way that can't leave a half-written file if the app closes mid-save.
+  - Agent activity is saved to the hive in batches of up to 10 seconds instead of on every action, and everything left over is saved when you quit.
+  - Qwen agents' costs are now added up correctly.
+  - The Discord trigger can't start twice if you switch it off and on quickly, and Spotify no longer refreshes its sign-in twice at once.
+- **Smaller app.** The old 2D office (and its `pixi.js` engine), the unused code editor and file tabs (and 6 `@codemirror` language packages), and the office theme picker are gone. The 3D office replaced all of them.
+
+- **More room on screen.** The office now fills almost the whole window (thin 6px frame instead of 16px), the agent cards strip at the bottom is about a third shorter, and the floor bar sits on one line at the bottom right of the office instead of wrapping and covering the status line.
+- **New plain-language User Guide** (`docs/USER_GUIDE.md`) for people who don't code: a word list, a tour of the screen, your first task step by step, every button explained, money and safety tips, troubleshooting and quick answers. The README now opens with a live GIF of the office, a screenshot of the full app and a 5-minute quick start.
+- **New 3D office.** The office floor is now a 3D scene ported from Claw3D (MIT): cartoon agents, desks, a kitchen, a gym, a server room and a QA lab. Click an agent to open it, or use its edit button to edit it.
+  - **Edit the office:** press the pencil button (top right) to add, move, rotate or delete walls, doors, desks and other furniture. Your layout is saved on this computer. **Reset** puts back the default layout.
+  - **Roy's boss office:** the walled room by the ATM (marked BOSS) is Roy's office. Whenever he has work he goes to his desk there; he only walks around and chats when he is idle.
+  - **Agents sit at their desks properly.** The desk model was drawn half a desk away from where the office thought it was, so agents ended up inside the desk and monitor. Desks, monitors and chairs now line up, and agents sit on the chair facing the screen. An agent with no route to its first spot now starts there instead of freezing in place.
+  - **Full screen:** the new full-screen button (top right) hides the header, the agent strip and the side panel and fills the screen with the office. Press it again or Esc to leave. The walking-trails button now has a footprints icon.
+  - **Office screens use the brand look.** The settings, jukebox, QA lab, server room, ATM, stand-up and avatar screens now use the AI Guild colours (lime, orange accent, dark) and lowercase Plus Jakarta Sans headings instead of Claw3D's amber, cyan and violet. Fixed the jukebox buttons showing as plain white circles.
+  - **Moving the camera:** drag to move around, right-drag to turn, scroll to zoom toward the pointer. Double-click or the overview button (top left) fits the whole office in view.
+  - **Floors:** up to 15 agents per floor, plus Roy, who always stays on Floor 1. New hires go to the first floor with room, and a new floor opens when all are full. **Add floor** (bottom) adds an empty one. To move an agent, select it, then pick a floor next to **Move to**. Each floor has its own layout.
+  - **Desks and breaks:** every agent has its own desk (16 per floor; Roy gets the one by the lounge). Working agents sit at their desk. Idle agents get coffee, hang around the kitchen and cafeteria tables, and stop to chat when they meet.
+  - **Kanban board:** opens the app's task board.
+  - **Neo-Manila look:** woven banig floor, narra walls, glowing capiz windows, jeepney stripes, neon trim, hanging parol lanterns, a MABUHAY sign and the Philippine flag.
+  - **Chatter bubbles are back:** idle agents trade Taglish chika at the coffee machine and tables, trade witty Pinoy chismis (Friday deploys, 'minor fix' PRs with 47 files, the bug that came back like an ex), suck up to Roy when he's near, and cheer when they finish a task. An agent's latest reply also shows over their head for a few seconds.
+  - **Everything in the office works now:**
+    - **Server room:** GitHub pull requests for the selected agent's project: review, approve, request changes, comment on a line. Uses your `gh` sign-in.
+    - **ATM:** cost and token spend per agent and per day from your local cost ledger, behind a PIN.
+    - **Meeting table:** a stand-up. Agents walk to the table and read out their tasks, blockers and recent commits.
+    - **Computers:** click an agent's computer to see its recent tools, commands and the last file it touched.
+    - **Phone and text booths:** short scripted call and text scenes.
+    - **Jukebox:** Spotify (Premium) playback and search; agents dance while it plays.
+    - **Janitors** sweep the floor when an agent restarts or clears its context, and the roster shows 💬 💻 ☕ reactions.
+  - **Agents walk on their own:** tell an agent "go to the gym", "review PRs", "write tests", "call Maya and tell her …" or "text Joseph saying …" and it walks there. Agents that run tests go to the QA lab. Fixed an upstream bug that kept everyone out of the gym and QA lab.
+  - **3D look and personality:** **Edit agent** now has **3D look** (hair, clothes, hats, colours) and **personality** (a personality section in the agent's CLAUDE.md / AGENTS.md / GEMINI.md).
+  - **Company builder:** in **Add agent**, describe a company and get a planned team to review and hire.
+  - **Spoken replies:** optional, with your ElevenLabs key (office gear button).
+  - Office layouts start fresh with this version (the desk grid moved).
+- **New connector: Obsidian.** Agents and Roy can save notes, learnings and decisions to your Obsidian vault and read them back. Notes get frontmatter, tags and [[links]]; there's a daily note log and search. Pick the vault folder in Settings → Connections → Obsidian, switch it on, and start a new agent. Agents only touch that folder, never the `.obsidian` settings, and never overwrite or delete a note. Obsidian doesn't need to be open. For Obsidian's own features, the **Obsidian Local REST API** plugin is now a template under Connected services.
+- **New connector: Discord.** Agents can post to your Discord channels, read recent messages and list channels, as your own bot. Paste the bot token in Settings → Connections → Discord (stored encrypted); agents reach Discord through the app's local proxy and never see the token. Their posts never ping anyone.
+- **New trigger: Discord.** @-mention your bot in a watched channel and the request goes to Roy's queue, like Slack. The bot replies "Received", and the agent that does the work posts the answer back in the channel. Set it up in the Triggers tab → Discord. Only people you allow can start work (by default just the bot's owner, you); anyone else in the channel is ignored. Nothing listens on your computer: AI Guild checks the channels every 5 seconds.
+- **More room for agent replies.** In the side panel, Roy's tabs are now one row of icons (hover for the name; the open tab shows its name). An agent's pause, stop and steer controls share one row. Focus mode is unchanged.
+- **Website moved to https://maaramid.github.io/ai-guild.** Links in the app's Help and About, the README, guides and privacy policy now point there. jepoy.dev stays as the developer credit.
+- **Removed leftover sign-in data.** Versions with sign-in kept an encrypted account token in `license.json` in the app's data folder, and nothing deleted it after sign-in was removed. AI Guild now deletes it on start, from its own folder and from older Jepoy Floor AI / ATMT Labs folders, and never copies it forward. The account service it belonged to (auth.labs.atmt.dev / api.labs.atmt.dev) is already offline.
+
+- **Website: touch interactions and more sections.**
+  - **Touch library:** [@use-gesture/vanilla](https://use-gesture.netlify.app) adds touch and drag. You can spin the 3D scenes (with fling), pinch the tower to zoom, swipe the feature carousel on phones, and press and tilt tiles on tablets.
+  - **New sections:**
+    - a draggable "works with" strip of AI tools;
+    - "a day in the building", with a time scrubber;
+    - a swipeable deck of the built-in role templates;
+    - a "you stay in charge" Auto / Ask-first switch;
+    - an open-source section.
+- **New brand colors and headline type, in the app and on the website.**
+  - **Colors:** main lime `#CDF252` (fills, pills, highlighted words), key orange `#E1642D` (the one key word, asterisks) and dark `#181C17` (dark scenes and text). The dark theme now sits on `#181C17`, with surfaces and text tinted from it. Every text and border value was checked against the existing contrast floors.
+  - **Type:** headlines and labels use Plus Jakarta Sans ExtraBold in lowercase with tight letter spacing (bundled, 12 KB).
+  - **Updated surfaces:** the splash screen, Help page, terminal colors and the office wall sign follow the palette.
+
+- **Website redesign (jepoy.dev).** A shorter, futuristic page:
+  - **Layout:** hero, how it works, a 12-tile feature grid, download and six FAQs. The video placeholder, long floor-by-floor tour and duplicate calls to action are gone.
+  - **3D:** three three.js scenes (an upgraded hero city with a holographic spire, a tower that builds floor by floor as you scroll, and a wireframe core by the download buttons) plus a CSS 3D grid horizon.
+  - **Motion:** Motion (Framer Motion's vanilla-JS API) drives the reveals, spring tilt, count-ups and scroll-linked effects.
+  - **Phones and reduced motion:** phones get lighter CSS versions, and "reduce motion" turns all animation off.
+  - **Fonts:** five unused files removed.
+
+- **Renamed to AI Guild, by jepoy.dev.** The app, installers, menus, Help, website and docs now say AI Guild. Installers are named `AI Guild-<version>-…`.
+- **Install fresh once.** The app ID changed to `com.maaramid.aiguild`, so the updater cannot move an existing Jepoy Floor AI install across. Install AI Guild from https://maaramid.github.io/ai-guild/#download; your agents, floors and settings carry over automatically from the old Jepoy Floor AI data folder. You can then uninstall Jepoy Floor AI.
+- Shared hire links (`atmtlabs://`), hire and floor files, and skills from the existing catalog keep working unchanged.
+- **Website:** removed the leftover "Pay once" claims (AI Guild is free), a duplicate Download link in the nav, and screen-reader noise from decorative emoji. Download links now fall back to the releases page within 4 seconds if GitHub hangs, and only ever redirect to installers in this repository's releases.
+
+## v3.0.4 — 2026-10-21
+
+- **Releases now live on the source repository.** Installers and app updates come from https://github.com/maaramid/ai-guild/releases; the separate releases-only repository is retired. Releases are named "Jepoy Floor AI vX.Y.Z".
+
+## v3.0.3 — 2026-10-21
+
+- **README rewritten** in the layout of the original Munder Difflin README: supported agents, how it works, features, getting started, roadmap, license and acknowledgements, all describing this edition.
+- **Open source under the MIT License.** Jepoy Floor AI is a fork of [Munder Difflin](https://github.com/chaitanyagiri/munder-difflin) by Chaitanya Giri, and is now released under the same MIT License, with credit to Chaitanya and the Munder Difflin contributors in `LICENSE`, `THIRD_PARTY_NOTICES.md`, `CONTRIBUTORS.md`, Help → About and the website. The proprietary license and EULA are gone. Source: https://github.com/maaramid/ai-guild.
+- **No account, no sign-in.** Removed the Google/Yahoo sign-in gate, the account menu and Settings section, the license token client and the `services/licensing` account service. Agents start as soon as the app is installed.
+- **Fix: a failed "Restart & Continue" no longer wipes the agent's terminal history** when the app falls back to the previous engine and resumes its session.
+- **Security: app windows can no longer be navigated away from the app.** Dropping a file or link on the window used to load it with the app's terminal bridge. The Slack and webhook trigger servers now listen on this computer only (the tunnel still reaches them).
+- **Downloads stop after 5 redirects and 10 MB**, and relative redirects now work.
+- Removed unused dependencies: `localtunnel`, `@types/localtunnel`, `commit-graph`.
+- **GitHub:** a Sponsor button (jepoy.dev/sponsor), private vulnerability reporting and OS labels for bug reports.
+- **Website moved to jepoy.dev.** `/welcome`, `/pricing` and `/terms` redirect; the privacy policy now describes the app without an account.
+
+## v2.0.0 — 2026-10-04
+
+- **Rebrand: the app is now Jepoy Floor AI.** Renamed from ATMT Labs across the app, installer, website, docs and agent-facing copy. Display name, slug (`jepoy-floor-ai`), installer artifact names and the macOS/Windows app identity (`com.maaramid.aiguild`) all change; existing userData is carried over automatically on first run. Wired to live infrastructure and kept for a coordinated cutover: the `atmtlabs://` deep-link scheme and OAuth client id, the `labs.atmt.dev` account domains, the GitHub releases repo, the manifest spec tags (`atmt-labs/hire@1`, `atmt-labs/floor@1`) and the on-disk `.atmt-skill.json` skill metadata. The skills catalog now accepts catalogs signed with either publisher name. Account sign-in cookies moved to `jepoy_*` names; signed-in users just sign in again after the service deploys.
+
+## v1.0.0 — 2026-09-30
+
+- **Jepoy Floor AI is free with account sign-in.** Google/Yahoo sign-in remains required for new accounts; every signed-in account gets every app feature. New accounts renew a short-lived token. Existing machine-bound paid activations keep their original offline grant.
+- **Purchases retired.** Removed checkout, trial charging, unlock-code redemption, account purchase controls and the billing cron. Website, account pages, customer guide, terms and privacy copy now describe free access. Historical payment records remain for support and legal retention.
+
+## v0.7.0 — 2026-09-29
+
+- **New project floor.** Settings → General can create a fresh floor for an existing repo or folder. The app saves the current floor, stops its sessions, and reopens with separate agents, tasks and memory. The project becomes the new floor's default folder, Roy is told its path, and each floor restores its own project quick-picks and automation settings when reopened.
+
+## v0.6.1 — 2026-09-29
+
+- **Roy's new agents stay hired.** Agents Roy spawns through a request now remain on the floor after finishing a task or sitting idle. The 20-minute idle reaper applies only when Roy explicitly requests a one-off worker (`ephemeral: true`). A stopped durable agent keeps its card and can be restored; only an explicit Fire removes it. Archived agents can be returned to the floor with their saved identity and memory from Command Center.
+
+## v0.6.0 — 2026-09-29
+
+- **Command Center and new agent defaults.** Active Auto delivery is highlighted in green in both themes. Deliveries can be saved to a chosen folder; their floor storage and reset behavior are shown in the tray. New Claude agents default to Opus 5.5 and new Codex agents to GPT-6 Sol; old shipped Claude defaults migrate once, while later manual model choices remain intact.
+- **Fix: OpenCode agents stopped on "Permission required" in auto mode.** Auto mode allowed OpenCode's edits, shell commands and web fetches, but not `external_directory` (files outside the project folder) or `doom_loop` (a repeated tool call), which OpenCode asks about by default. Both are now allowed when the floor is in auto mode; "ask first" mode is unchanged. The config builder moved to `src/shared/opencodeConfig.ts` with tests.
+- **Agents stay hired:** a CLI exit or a startup restore failure leaves the agent visible as stopped, with its identity, restore recipe and isolated worktree intact. Roy sees stopped hires as unavailable instead of fired. New hires are protected from an older startup PTY snapshot. Switching office themes no longer fires the team; only an explicit human or Roy fire removes a hired agent from the floor.
+
+## v0.5.1 — 2026-09-28
+
+- **Release pipeline:** allow the preflight gate to read CI check results, so it can publish the validated installers and public mirror.
+
+## v0.5.0 — 2026-09-28
+
+- **Reliable first message:** Roy's inbox is created when the first scheduled message arrives on a new floor, so a cold-start race no longer drops that message. Unknown agents still do not acquire mailboxes.
+- **Release command:** `release:*` now checks for a clean, current checkout before creating a commit or tag. Installers are built by the tag pipeline; local builds are optional.
+- **Deliveries.** Agents can hand back finished files (HTML, Markdown, PDF, DOCX, images, spreadsheets, slides): a "done" message with `"attachments"`. The router snapshots each file into `<hive>/deliveries/<id>/` and the new **Deliveries** tab in the Command Center shows them, with a count of new ones. Preview HTML (sandboxed, no scripts), Markdown, text and images; open documents in their own app; **Approve** or **Request changes**, which mails the agent to deliver a new version in the same conversation. Only files inside the agent's project folder, workspace or the hive are accepted (no symlinks, 50 MB per file, 20 files); programs and scripts are only ever shown in their folder, never launched. `deliveries/` is kept out of the hive's git history. Roy and every agent are told how to deliver (PROTOCOL.md).
+- **Release gate.** Tag builds now start with a cheap Linux preflight: tag = package.json, CHANGELOG section present and Unreleased emptied, "What's new" notes updated, doc links consistent, tag on main, CI green. Only then do the macOS (10x) and Windows (2x) builds run. Same checks locally: `npm run release:check` (also run by the `release:*` scripts). Draft PRs no longer run CI, and manual dry builds default to Linux only. `bump-version` now turns the Unreleased entries into the release's CHANGELOG section instead of stranding them.
+- **CI costs less.** Typecheck and Build now run on Linux instead of macOS (billed at 10x on private repos); release builds still use macOS and Windows. A newer push to a PR cancels the older CI run, website-only changes skip app CI (Vercel previews them), and the version check no longer runs twice per push.
+- **Website copy matches the app.** The landing page no longer says each floor has its own manager: Roy manages the whole building, and agents on different floors can work together.
+- **Website motion.** labs.atmt.dev now has smooth scrolling (Lenis), scroll-in reveals, count-up numbers, a blurred sticky nav, a scroll progress bar, card hover spotlights and a three.js night-city backdrop in the hero (desktop only, lazy-loaded, paused off screen). All of it is off with "reduce motion". Built from `tools/site-bundle`; the CSP now allows same-origin scripts only.
+- **Fix: website spacing.** Inline `style` attributes were silently blocked by the site's own CSP, so gaps like the one between "1 agent / 1 floor / 200 floors" and the "Hire your team" cards collapsed. They are now CSS classes.
+- **Fix: Sign out on auth.labs.atmt.dev did nothing.** `/logout` redirected to labs.atmt.dev, and browsers apply the page's CSP `form-action` to that redirect, so the POST was blocked. It now redirects to `/login` on the same origin.
+- **Download buttons on the homepage.** New "Download" section (and nav/footer link) on labs.atmt.dev with Mac, Windows and Linux buttons that always point at the latest public release. Before, the buttons only appeared on `/welcome` after checkout.
+- **Website download links follow the latest release.** `labs.atmt.dev/download/mac`, `/windows`, `/linux` (plus `/mac-zip` and `/windows-portable`) now redirect to that installer in the newest stable public release, via a small Vercel function (`site/api/download.js`). Publishing a release is enough; no site edit. Falls back to the public releases page if GitHub is unreachable. The welcome page notes which file each button downloads.
+- **Terms and privacy are final.** Effective September 28, 2026: business address in Albuquerque, New Mexico; New Mexico law and Bernalillo County courts; one license per person; no refunds after the 7-day trial (except where the law requires one); prices exclude taxes; lifetime licenses include future major versions; 21+ only; DPO at support@maaramid.com. Draft banners removed, and the landing page FAQ now answers "Can I get a refund?".
+- **Website: user guide, terms and privacy.** `labs.atmt.dev/guide` is the user guide online. `labs.atmt.dev/terms` and `labs.atmt.dev/privacy` publish the Terms of Service / license and Privacy Policy that the sign-in page already links to. The privacy policy covers Google and Yahoo sign-in (scopes, use, Google API Services User Data Policy / Limited Use), cookies, processors, retention and data-subject rights (PH DPA, GDPR, US states). Both pages still carry `[CONFIRM]` items and a draft banner to remove after review.
+- **User guide: your building.** New section on running many floors at once: opening a floor, the 200-floor limit, one Roy for the whole building, agents messaging across floors, and what closing a floor does.
+- **Public app updates:** release CI now mirrors private release notes and installer assets to a public distribution repository; packaged clients check that public feed without a GitHub credential.
+- **Website (labs.atmt.dev):** new `site/` folder, deployed as its own Vercel project. It holds the landing page for **Jepoy Floor AI Floor** (building concept, feature tour "floor by floor", pricing, FAQ, video placeholder), plus `/welcome` (after checkout) and `/pricing`. It uses the Automatika brand and loads no scripts.
+- **Building cap:** up to **200 floors** (office windows) can be open at once. A new floor beyond that shows "Your building is full" instead of opening. There was no limit before.
+- **Install the admin page on your phone:** `auth.labs.atmt.dev/admin` is now an installable web app ("Jepoy Floor AI Admin": Add to Home Screen on iPhone, Install app on Android). Only the admin page is installable. Its manifest sits behind the owner check and returns 404 to everyone else. There is no service worker, so nothing from the admin page is cached on the device. The site-wide `/site.webmanifest` was removed.
+- **Branded web pages:** sign-in, account, admin and message pages on auth.labs.atmt.dev now follow the Automatika Design System v2 (`brand/`): automatika™ logo (light and dark versions), Poppins headings, Inter body text, lime `#C7FD11` primary button, rounded cards, light and dark mode. The brand favicon set, apple-touch icon and web manifest are served by the service itself. Fonts are self-hosted (SIL OFL, `services/licensing/assets/fonts/LICENSE.txt`).
+- **Admin page for unlock codes:** `auth.labs.atmt.dev/admin` lets the owner create (with a label and optional expiry), list and revoke unlock codes in the browser. Only emails in `ADMIN_EMAILS`, only via Google sign-in from the last 12 hours; everyone else gets a 404. Run `npm run db:migrate` once (adds `web_sessions.provider`).
+- **Account menu in the app:** Manage Account & Subscription, Cancel Free Trial, Redeem Unlock Code, and Start Free Trial / Buy open the web account page or Checkout. The app menu is now always installed; "New Floor" still appears only with multi-window floors on.
+- **Fixed licensing checkout:** account page buttons now submit with a valid same-origin browser Origin, so buying a lifetime license no longer stops at Forbidden.
+- **Licensing:** sign in with Google or Yahoo (auth.labs.atmt.dev); 7-day free trial with a card, charged once on day 7; one-time lifetime purchase via Stripe; a paid computer is stamped to its hardware ID and never checks the license again; up to 3 computers per email. Service in `services/licensing` (Vercel + Neon, Singapore).
+- **Unlock codes:** single-use vouchers that grant a free lifetime license without Stripe. Redeem in the app ("Have an unlock code?"), on the account page, or via `auth.labs.atmt.dev/redeem?code=…`. Owners mint, list and revoke them with `npm run codes` in `services/licensing`.
+- **Floors:** import a whole team from a `.floor.json` file or an `atmtlabs://floor?src=https://…` link, review it, then **Hire all** or **review one by one**; export your current team (no folders, keys or memory). Mixed-engine teams supported.
+- **Connections:** Pancake POS and Webcake Landing connectors. Keys stay encrypted locally; Pancake POS goes through a local proxy so agents never see the key.
+- **Fixed:** default MCP tool servers never loaded for Claude Code agents (they were written to `--settings`, which Claude Code ignores; now `--mcp-config`). Keyed servers no longer launch with an empty key.
+- License screen and agent-spawn messages now describe the lifetime license instead of a "subscription"; License Agreement and Privacy links added to sign-in.
+- Docs: user guide, AGENTS.md, draft EULA and Privacy Policy, go-live checklist.
+- Replace the community skills catalog with the Jepoy Floor AI Skills Library, sourced from a separate public repository.
+- Add pinned, hash-verified Claude Code skill installs and explicit updates with local-edit protection.
+- Fixed Roy switching from Claude to Codex: use a supported ChatGPT sign-in model, repair the old model if a failed switch saved it, surface Codex's folder-trust prompt, detect immediate startup exits, and restart the previous engine when a switch fails (with an explicit warning if its conversation cannot resume).
+
+## v0.1.1 — 2026-09-28
+
+- Fixed the package lockfile so clean installs work with the CI version of npm.
+- **Floor Reset:** Settings → General now offers a floor-only reset that keeps the license and general app settings. Its confirmation lets you save a verified, restorable ZIP first or reset without a backup. The ZIP captures the roster, hive, shared memory and known Claude session transcripts; project source folders and credentials remain outside it.
+- Codex's Windows sandbox setup screen now keeps the agent waiting in its visible terminal, so queued work cannot be typed into the setup prompt while the user handles UAC.
+- **Labs website design:** restyled the landing, pricing and welcome pages to match automatika.ph's dark espresso palette, lime accents, Instrument Serif, Manrope, IBM Plex Mono, boxed navigation and restrained borders. Fonts are self-hosted; page content and static placeholders stay in place.
+- **Version per push:** Source pushes must increase the app's `Major.Minor.Patch` version. Local Git hooks check before push, and GitHub Actions checks branch pushes and pull requests; patch, minor and major bump commands keep `package.json` and the lockfile aligned.
+
+## v0.0.4 — 2026-09-28
+
+- Release CI now reads the private draft through the GitHub CLI before publishing it, avoiding a draft lookup failure from the REST release-by-tag endpoint.
+
+## v0.0.3 — 2026-09-28
+
+- Release CI uploads each platform's installers and updater metadata to a private draft, then publishes only after every platform succeeds; it no longer needs GitHub Actions artifact storage.
+- Unsigned macOS builds no longer treat an empty signing variable as a certificate path.
+
+## v0.0.2 — 2026-09-28
+
+- Packaged app updates and What's New now use the public Jepoy Floor AI releases repository without a GitHub credential.
+- Published private releases automatically mirror their notes, updater metadata and installers to that public repository.
+
+## v0.0.1 — 2026-09-27
+
+- Initial Jepoy Floor AI release: built on an MIT-licensed open-source codebase.
+- New warm-dark lime color scheme, Filipino agent roster, version reset.

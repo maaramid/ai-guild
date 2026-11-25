@@ -1,0 +1,102 @@
+# Keep AI Guild in step with DevLabs (https://github.com/jeffreycayao/Dev-Labs).
+#
+# Weekly (and on demand from the Actions tab) this checks DevLabs' main branch.
+# When it has new commits, it downloads them, runs tools/rebrand/rebrand.py and
+# opens a pull request with the rebranded result. Nothing reaches main until you
+# review and merge the pull request; release by pushing a v* tag as usual.
+#
+# Workflow files themselves are never synced (GitHub does not let a workflow
+# token change them); the pull request says when DevLabs changed its workflows.
+name: Sync from DevLabs
+
+on:
+  schedule:
+    - cron: "17 1 * * 1"   # Mondays 01:17 UTC (09:17 Manila)
+  workflow_dispatch:
+
+permissions:
+  contents: write
+  pull-requests: write
+
+concurrency:
+  group: sync-devlabs
+  cancel-in-progress: false
+
+jobs:
+  sync:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Check DevLabs for new commits
+        id: upstream
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          sha=$(gh api repos/jeffreycayao/Dev-Labs/commits/main --jq .sha)
+          last=$(cat tools/rebrand/UPSTREAM 2>/dev/null || echo none)
+          echo "sha=$sha" >> "$GITHUB_OUTPUT"
+          echo "short=${sha:0:7}" >> "$GITHUB_OUTPUT"
+          if [ "$sha" = "$last" ]; then echo "new=false" >> "$GITHUB_OUTPUT"; else echo "new=true" >> "$GITHUB_OUTPUT"; fi
+          echo "DevLabs main: $sha (last synced: $last)"
+
+      - name: Skip if a pull request for this commit is already open
+        if: steps.upstream.outputs.new == 'true'
+        id: existing
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          n=$(gh pr list --head "sync/devlabs-${{ steps.upstream.outputs.short }}" --state open --json number --jq length)
+          echo "open=$n" >> "$GITHUB_OUTPUT"
+
+      - uses: actions/setup-python@v5
+        if: steps.upstream.outputs.new == 'true' && steps.existing.outputs.open == '0'
+        with:
+          python-version: "3.12"
+
+      - name: Download DevLabs and rebrand
+        if: steps.upstream.outputs.new == 'true' && steps.existing.outputs.open == '0'
+        run: |
+          curl -sSfL -o "$RUNNER_TEMP/devlabs.zip" "https://github.com/jeffreycayao/Dev-Labs/archive/${{ steps.upstream.outputs.sha }}.zip"
+          python -I tools/rebrand/rebrand.py "$RUNNER_TEMP/devlabs.zip" "$RUNNER_TEMP/aiguild" | tee "$RUNNER_TEMP/report.txt"
+          echo "${{ steps.upstream.outputs.sha }}" > "$RUNNER_TEMP/aiguild/tools/rebrand/UPSTREAM"
+          # Did DevLabs change its workflows? (They are not copied, see above.)
+          if ! diff -rq "$RUNNER_TEMP/aiguild/.github/workflows" .github/workflows > "$RUNNER_TEMP/wf.txt" 2>&1; then
+            echo "changed" > "$RUNNER_TEMP/wf-changed"
+          fi
+          rsync -a --delete --exclude .git --exclude .github/workflows "$RUNNER_TEMP/aiguild/" ./
+
+      - name: Open the pull request
+        if: steps.upstream.outputs.new == 'true' && steps.existing.outputs.open == '0'
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          if [ -z "$(git status --porcelain)" ]; then echo "Nothing changed after the rebrand."; exit 0; fi
+          branch="sync/devlabs-${{ steps.upstream.outputs.short }}"
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git checkout -b "$branch"
+          git add -A
+          git commit -m "Sync DevLabs ${{ steps.upstream.outputs.short }} and rebrand to AI Guild"
+          git push -u origin "$branch"
+          {
+            echo "Rebranded DevLabs [\`${{ steps.upstream.outputs.short }}\`](https://github.com/jeffreycayao/Dev-Labs/commit/${{ steps.upstream.outputs.sha }}) with \`tools/rebrand/rebrand.py\`."
+            echo
+            echo "**Rebrand report**"
+            echo '```'
+            cat "$RUNNER_TEMP/report.txt"
+            echo '```'
+            if [ -f "$RUNNER_TEMP/wf-changed" ]; then
+              echo
+              echo "**DevLabs changed its workflow files.** They were not copied; compare and update \`.github/workflows\` by hand:"
+              echo '```'
+              cat "$RUNNER_TEMP/wf.txt"
+              echo '```'
+            fi
+            echo
+            echo "Before merging: check anything listed under \"Check these by hand\", then build and try the app."
+          } > "$RUNNER_TEMP/body.md"
+          gh pr create --base "${{ github.event.repository.default_branch }}" --head "$branch" \
+            --title "Sync DevLabs ${{ steps.upstream.outputs.short }}" --body-file "$RUNNER_TEMP/body.md"

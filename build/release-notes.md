@@ -1,0 +1,4 @@
+- Pick any OpenRouter model, free or paid, per agent.
+- New connectors: Metricool and Meta Ads, plus your own MCP servers.
+- Slack only takes work from people on your allowed list.
+- Many security, memory and speed fixes.
